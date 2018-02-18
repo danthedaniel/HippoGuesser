@@ -41,8 +41,6 @@ export default class TwitchVideoEmbed extends Component {
   setPlayer() {
     if (!this.player) {
       let options = {
-        width: "100%",
-        height: "500px",
         theme: "dark",
         chat: "default"
       };

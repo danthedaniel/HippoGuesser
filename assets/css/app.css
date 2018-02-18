@@ -1,3 +1,27 @@
-.list-group, .btn-group {
+body {
+  background-color: rgb(74, 81, 86) !important;
+}
+
+.list-group, .btn-group, .navbar, iframe {
   margin-bottom: 1rem !important;
+}
+
+.card-fill {
+  width: 100%;
+  height: 500px;
+}
+  .card-fill .card-body {
+    margin: 0 auto;
+  }
+
+/* Twitch Embed */
+.twitch-video-embed {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+iframe {
+  height: 411px;
+  width: 100%;
 }

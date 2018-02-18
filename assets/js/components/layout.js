@@ -5,6 +5,18 @@ import TwitchVideoEmbed from './twitch/embed.js';
 import Guesses from './guesses.js';
 import Guesser from './guesser.js';
 import Controls from './controls.js';
+import Navbar from './navbar.js';
+
+const cookies = (() => {
+  let cookie_obj = {};
+  document.cookie
+    .split("; ")
+    .map(cookie => cookie.split("="))
+    .forEach(pair => {
+      cookie_obj[pair[0]] = pair[1];
+    });
+  return cookie_obj;
+})();
 
 export default class Layout extends Component {
   constructor(props) {
@@ -15,7 +27,7 @@ export default class Layout extends Component {
         {user: "teaearlgraycold", time: "0:41.00"},
         {user: "teaearlgraycold", time: "0:39.64"}
       ],
-      user: "teaearlgraycold",
+      username: cookies["username"],
       moderator: true,
       can_submit: true,
       input: {
@@ -26,7 +38,7 @@ export default class Layout extends Component {
 
   submitGuess() {
     let newState = Object.assign({}, this.state);
-    newState.guesses.push({user: newState.user, time: this.state.input.guess});
+    newState.guesses.push({user: newState.username, time: this.state.input.guess});
     newState.input.guess = "";
     newState.can_submit = false;
     this.setState(newState);
@@ -43,19 +55,14 @@ export default class Layout extends Component {
       <div class="container">
         <div class="row">
           <div class="col">
-            <div class="jumbotron">
-              <h1 class="display-4">Hippo Time Guesser</h1>
-              <p class="lead">
-                Guess how long it will take Salt to take down King Hippo.
-              </p>
-            </div>
+            <Navbar active="Guess!" username={state.username} />
           </div>
         </div>
         <div class="row">
-          <div class="col-8">
+          <div class="col-xs-12 col-md-12 col-lg-8">
             { /* <TwitchVideoEmbed channel="summoningsalt" /> */ }
           </div>
-          <div class="col-4">
+          <div class="col-xs-12 col-md-12 col-lg-4">
             <div class="row">
               <div class="col">
                 <Guesser
@@ -64,7 +71,7 @@ export default class Layout extends Component {
                   value={state.input.guess}
                   disabled={!this.state.can_submit} />
                 { state.moderator && <Controls state="ready" /> }
-                <Guesses data={state.guesses} />
+                <Guesses guesses={state.guesses} />
               </div>
             </div>
           </div>

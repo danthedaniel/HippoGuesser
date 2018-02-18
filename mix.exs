@@ -20,7 +20,7 @@ defmodule Mtpo.Mixfile do
   def application do
     [
       mod: {Mtpo.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :oauth2]
     ]
   end
 
@@ -41,7 +41,9 @@ defmodule Mtpo.Mixfile do
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
-      {:ecto_enum, "~> 1.1.0"}
+      {:ecto_enum, "~> 1.1.0"},
+      {:oauth2, "~> 0.9"},
+      {:secure_random, "~> 0.5"}
     ]
   end
 

@@ -19,6 +19,9 @@ defmodule MtpoWeb.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
+    get "/auth/twitch", SessionController, :auth
+    get "/auth/twitch/callback", SessionController, :callback
+    get "/auth/logout", SessionController, :delete
   end
 
   # Other scopes may use custom stacks.
