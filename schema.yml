@@ -1,0 +1,22 @@
+round: index(start_time)
+  id: int
+  created_at: time
+  updated_at: time
+  start_time: time
+  end_time: time
+  started_by: integer
+  state: enum { InProgress, Closed, Completed }
+         (should only be one non-Closed round at a time)
+guess: index(round_id, user_id)
+  id: int
+  round_id: int
+  user_id: int
+  created_at: time
+  updated_at: time
+  value: str
+user: index(perm_level, name)
+  id: int
+  created_at: time
+  updated_at: time
+  name: str (twitch account name)
+  perm_level: enum { User, Mod, Admin }

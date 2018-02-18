@@ -1,0 +1,10 @@
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <div class="jumbotron">
+        <h1 class="display-4">Hippo Time Guesser</h1>
+        <p class="lead">You must have Javascript enabled for this site.</p>
+      </div>
+    </div>
+  </div>
+</div>
