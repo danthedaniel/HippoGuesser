@@ -2,10 +2,10 @@ defmodule Mtpo.Rounds do
   @moduledoc """
   The Rounds context.
   """
-
   import Ecto.Query, warn: false
   alias Mtpo.Repo
 
+  alias Mtpo.Rounds
   alias Mtpo.Rounds.Round
 
   @doc """
@@ -35,10 +35,22 @@ defmodule Mtpo.Rounds do
       ** (Ecto.NoResultsError)
 
   """
-  def get_round!(id), do: Repo.get!(Round, id)
+  def get_round!(id) do
+    Repo.get!(Round, id)
+    |> Repo.preload(:guesses)
+  end
+
+  def current_round!() do
+    case Round |> Ecto.Query.last |> Repo.one do
+      nil ->
+        {:ok, round} = Rounds.create_round
+        round
+      round -> round
+    end
+  end
 
   @doc """
-  Creates a round.
+  Creates a round. Will set all previous rounds to :closed.
 
   ## Examples
 
@@ -50,6 +62,12 @@ defmodule Mtpo.Rounds do
 
   """
   def create_round(attrs \\ %{}) do
+    closed = RoundState.__enum_map__[:closed]
+    from(r in Round, where: r.state != ^closed)
+    |> Repo.update_all(set: [state: closed])
+    # TODO: This /should/ be handled by the database as a default...
+    attrs = Map.put_new(attrs, :state, :in_progress)
+
     %Round{}
     |> Round.changeset(attrs)
     |> Repo.insert()

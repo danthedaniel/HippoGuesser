@@ -12,8 +12,8 @@ config :logger, level: :warn
 # Configure your database
 config :mtpo, Mtpo.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
+  username: "mtpo_test",
+  password: "password",
   database: "mtpo_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox

@@ -43,7 +43,8 @@ defmodule Mtpo.Mixfile do
       {:cowboy, "~> 1.0"},
       {:ecto_enum, "~> 1.1.0"},
       {:oauth2, "~> 0.9"},
-      {:secure_random, "~> 0.5"}
+      {:secure_random, "~> 0.5"},
+      {:exirc, "~> 1.0.1"}
     ]
   end
 

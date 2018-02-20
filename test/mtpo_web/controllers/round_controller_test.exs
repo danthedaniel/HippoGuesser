@@ -1,85 +1,100 @@
 defmodule MtpoWeb.RoundControllerTest do
   use MtpoWeb.ConnCase
+  alias Mtpo.{Rounds, Users, Guesses}
 
-  alias Mtpo.Rounds
-  alias Mtpo.Rounds.Round
+  @mod_attrs %{name: "summoningsalt", perm_level: :mod}
+  @user_attrs %{name: "andrewg", perm_level: :user}
 
-  @create_attrs %{end_time: ~N[2010-04-17 14:00:00.000000], start_time: ~N[2010-04-17 14:00:00.000000], started_by: 42, state: 42}
-  @update_attrs %{end_time: ~N[2011-05-18 15:01:01.000000], start_time: ~N[2011-05-18 15:01:01.000000], started_by: 43, state: 43}
-  @invalid_attrs %{end_time: nil, start_time: nil, started_by: nil, state: nil}
+  def mod do
+    {:ok, user} = Users.create_user(@mod_attrs)
+    user
+  end
 
-  def fixture(:round) do
-    {:ok, round} = Rounds.create_round(@create_attrs)
-    round
+  def user do
+    {:ok, user} = Users.create_user(@user_attrs)
+    user
   end
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  describe "index" do
-    test "lists all round", %{conn: conn} do
-      conn = get conn, round_path(conn, :index)
-      assert json_response(conn, 200)["data"] == []
-    end
+  test "mods can start a new round", %{conn: conn} do
+    assert Enum.count(Rounds.list_round) == 0
+    god = mod()
+    conn
+    |> Plug.Conn.assign(:current_user, god.id)
+    |> patch("/api/rounds/current/change/in_progress")
+    |> json_response(200)
+    assert Enum.count(Rounds.list_round) == 1
   end
 
-  describe "create round" do
-    test "renders round when data is valid", %{conn: conn} do
-      conn = post conn, round_path(conn, :create), round: @create_attrs
-      assert %{"id" => id} = json_response(conn, 201)["data"]
-
-      conn = get conn, round_path(conn, :show, id)
-      assert json_response(conn, 200)["data"] == %{
-        "id" => id,
-        "end_time" => ~N[2010-04-17 14:00:00.000000],
-        "start_time" => ~N[2010-04-17 14:00:00.000000],
-        "started_by" => 42,
-        "state" => 42}
-    end
-
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post conn, round_path(conn, :create), round: @invalid_attrs
-      assert json_response(conn, 422)["errors"] != %{}
-    end
+  test "mods can mark a round as completed", %{conn: conn} do
+    Rounds.current_round!
+    god = mod()
+    conn
+    |> Plug.Conn.assign(:current_user, god.id)
+    |> patch("/api/rounds/current/change/completed")
+    |> json_response(200)
+    assert Rounds.current_round!.state == :completed
   end
 
-  describe "update round" do
-    setup [:create_round]
-
-    test "renders round when data is valid", %{conn: conn, round: %Round{id: id} = round} do
-      conn = put conn, round_path(conn, :update, round), round: @update_attrs
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
-
-      conn = get conn, round_path(conn, :show, id)
-      assert json_response(conn, 200)["data"] == %{
-        "id" => id,
-        "end_time" => ~N[2011-05-18 15:01:01.000000],
-        "start_time" => ~N[2011-05-18 15:01:01.000000],
-        "started_by" => 43,
-        "state" => 43}
-    end
-
-    test "renders errors when data is invalid", %{conn: conn, round: round} do
-      conn = put conn, round_path(conn, :update, round), round: @invalid_attrs
-      assert json_response(conn, 422)["errors"] != %{}
-    end
+  test "mods can mark a round as closed", %{conn: conn} do
+    Rounds.update_round(Rounds.current_round!, %{state: :completed})
+    god = mod()
+    conn
+    |> Plug.Conn.assign(:current_user, god.id)
+    |> patch("/api/rounds/current/change/closed?correct=0:40.99")
+    |> json_response(200)
+    assert Rounds.current_round!.state == :closed
   end
 
-  describe "delete round" do
-    setup [:create_round]
-
-    test "deletes chosen round", %{conn: conn, round: round} do
-      conn = delete conn, round_path(conn, :delete, round)
-      assert response(conn, 204)
-      assert_error_sent 404, fn ->
-        get conn, round_path(conn, :show, round)
-      end
-    end
+  test "new rounds can be started when current one is closed", %{conn: conn} do
+    Rounds.update_round(Rounds.current_round!, %{state: :completed})
+    Rounds.update_round(Rounds.current_round!, %{state: :closed})
+    god = mod()
+    conn
+    |> Plug.Conn.assign(:current_user, god.id)
+    |> patch("/api/rounds/current/change/in_progress")
+    |> json_response(200)
+    assert Enum.count(Rounds.list_round) == 2
   end
 
-  defp create_round(_) do
-    round = fixture(:round)
-    {:ok, round: round}
+  test "users can not change the round state", %{conn: conn} do
+    Rounds.current_round!
+    pleb = user()
+    conn
+    |> Plug.Conn.assign(:current_user, pleb.id)
+    |> patch("/api/rounds/current/change/completed")
+    |> json_response(403)
+    assert Rounds.current_round!.state == :in_progress
+  end
+
+  test "users can guess during in_progress rounds", %{conn: conn} do
+    assert Enum.count(Guesses.list_guesses) == 0
+    pleb = user()
+    conn
+    |> Plug.Conn.assign(:current_user, pleb.id)
+    |> post("/api/rounds/current/guess?value=0:40.99")
+    |> json_response(200)
+    assert Enum.count(Guesses.list_guesses) == 1
+  end
+
+  test "users can not guess during completed rounds", %{conn: conn} do
+    Rounds.update_round(Rounds.current_round!, %{state: :completed})
+    assert Enum.count(Guesses.list_guesses) == 0
+    pleb = user()
+    conn
+    |> Plug.Conn.assign(:current_user, pleb.id)
+    |> post("/api/rounds/current/guess?value=0:40.99")
+    |> json_response(400)
+    assert Enum.count(Guesses.list_guesses) == 0
+  end
+
+  test "current_user must be set to guess", %{conn: conn} do
+    conn
+    |> post("/api/rounds/current/guess?value=0:40.99")
+    |> json_response(400)
+    assert Enum.count(Guesses.list_guesses) == 0
   end
 end

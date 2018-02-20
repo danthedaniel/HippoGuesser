@@ -3,40 +3,80 @@ defmodule MtpoWeb.RoundController do
 
   alias Mtpo.Rounds
   alias Mtpo.Rounds.Round
+  alias Mtpo.Session
+  alias Mtpo.Guesses
+  alias Mtpo.Users
 
   action_fallback MtpoWeb.FallbackController
 
-  def index(conn, _params) do
-    round = Rounds.list_round()
-    render(conn, "index.json", round: round)
+  def current(conn, _params) do
+    round = Rounds.current_round!
+    conn
+    |> put_status(:ok)
+    |> put_resp_header("location", round_path(conn, :show, round))
+    |> render("show.json", round: round)
   end
 
-  def create(conn, %{"round" => round_params}) do
-    with {:ok, %Round{} = round} <- Rounds.create_round(round_params) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", round_path(conn, :show, round))
-      |> render("show.json", round: round)
+  def change_state(conn, %{"state" => "closed", "correct" => correct}) do
+    round = Rounds.current_round!
+    if Session.is_mod(conn) do
+      changeset = %{"state" => "closed", "correct_value" => correct}
+      {:ok, round} = Rounds.update_round(round, changeset)
+      show(conn, :ok, round)
+    else
+      show(conn, :forbidden, round)
+    end
+  end
+  def change_state(conn, %{"state" => "in_progress"}) do
+    if Session.is_mod(conn) do
+      case Rounds.current_round!.state do
+        :closed ->
+          {:ok, round} = Rounds.create_round
+          show(conn, :ok, round)
+        :in_progress -> show(conn, :ok, Rounds.current_round!)
+      end
+    else
+      show(conn, :forbidden, Rounds.current_round!)
+    end
+  end
+  def change_state(conn, %{"state" => "completed"}) do
+    round = Rounds.current_round!
+    if Session.is_mod(conn) do
+      case Rounds.update_round(round, %{"state" => "completed"}) do
+        {:ok, _} -> show(conn, :ok, round)
+        {:error, _} -> show(conn, 500, round)
+      end
+    else
+      show(conn, :forbidden, round)
+    end
+  end
+
+  def guess(conn, %{"value" => value}) do
+    current_user = Session.current_user(conn)
+    round = Rounds.current_round!
+    if not is_nil(current_user) do
+      changeset = %{
+        "round_id" => round.id,
+        "user_id" => current_user.id,
+        "value" => value
+      }
+      case Guesses.create_guess(changeset) do
+        {:ok, _} -> show(conn, :ok, round)
+        {:error, _} -> show(conn, 400, round)
+      end
+    else
+      show(conn, 400, round)
     end
   end
 
   def show(conn, %{"id" => id}) do
     round = Rounds.get_round!(id)
-    render(conn, "show.json", round: round)
+    show(conn, :ok, round)
   end
-
-  def update(conn, %{"id" => id, "round" => round_params}) do
-    round = Rounds.get_round!(id)
-
-    with {:ok, %Round{} = round} <- Rounds.update_round(round, round_params) do
-      render(conn, "show.json", round: round)
-    end
-  end
-
-  def delete(conn, %{"id" => id}) do
-    round = Rounds.get_round!(id)
-    with {:ok, %Round{}} <- Rounds.delete_round(round) do
-      send_resp(conn, :no_content, "")
-    end
+  def show(conn, status, %Round{} = round) do
+    conn
+    |> put_status(status)
+    |> put_resp_header("location", round_path(conn, :show, round))
+    |> render("show.json", round: round)
   end
 end

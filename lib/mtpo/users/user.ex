@@ -7,6 +7,7 @@ defmodule Mtpo.Users.User do
   schema "users" do
     field :name, :string
     field :perm_level, PermLevel
+    has_many :guesses, Mtpo.Guesses.Guess
 
     timestamps()
   end
@@ -16,5 +17,6 @@ defmodule Mtpo.Users.User do
     user
     |> cast(attrs, [:name, :perm_level])
     |> validate_required([:name, :perm_level])
+    |> unique_constraint(:name)
   end
 end

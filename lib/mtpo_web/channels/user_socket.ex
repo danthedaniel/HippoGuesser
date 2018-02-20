@@ -2,7 +2,7 @@ defmodule MtpoWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", MtpoWeb.RoomChannel
+  channel "room:*", MtpoWeb.RoomChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

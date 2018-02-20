@@ -5,8 +5,17 @@ defmodule Mtpo.Users do
 
   import Ecto.Query, warn: false
   alias Mtpo.Repo
-
+  alias Mtpo.Users
   alias Mtpo.Users.User
+  alias Mtpo.Rounds
+
+  def has_guessed(user) do
+    round = Rounds.current_round!().id
+    case Repo.get_by(Guess, round_id: round.id, user_id: user.id) do
+      nil -> false
+      _ -> true
+    end
+  end
 
   @doc """
   Returns the list of users.
@@ -50,9 +59,30 @@ defmodule Mtpo.Users do
 
   """
   def create_user(attrs \\ %{}) do
+    # TODO: What the fuck, why is this necessary?
+    attrs = Map.put_new(attrs, :perm_level, :user)
     %User{}
     |> User.changeset(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  If a user is found, returns it. Else creates one.
+
+  ## Examples
+
+      iex> create_or_get(%{field: value})
+      {:ok, %User{}}
+
+      iex> create_or_get(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_or_get_user(attrs) do
+    case Repo.get_by(User, attrs) do
+      nil -> Users.create_user(attrs)
+      result -> {:ok, result}
+    end
   end
 
   @doc """

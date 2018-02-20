@@ -11,8 +11,20 @@ defmodule MtpoWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
-    resources "/users", UserController, except: [:new, :edit]
-    resources "/round", RoundController, except: [:new, :edit]
+    plug :fetch_session
+  end
+
+  scope "/api", MtpoWeb do
+    pipe_through :api
+
+    get "/users/:id", UserController, :show
+    patch "/users/:id/mod", UserController, :make_mod
+    patch "/users/:id/admin", UserController, :make_admin
+
+    get "/rounds/:id", RoundController, :show
+    get "/rounds/current", RoundController, :current
+    post "/rounds/current/guess", RoundController, :guess
+    patch "/rounds/current/change/:state", RoundController, :change_state
   end
 
   scope "/", MtpoWeb do
@@ -23,9 +35,4 @@ defmodule MtpoWeb.Router do
     get "/auth/twitch/callback", SessionController, :callback
     get "/auth/logout", SessionController, :delete
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", MtpoWeb do
-  #   pipe_through :api
-  # end
 end

@@ -4,68 +4,49 @@ defmodule Mtpo.RoundsTest do
   alias Mtpo.Rounds
 
   describe "round" do
-    alias Mtpo.Rounds.Round
+    # alias Mtpo.Rounds.Round
 
-    @valid_attrs %{end_time: ~N[2010-04-17 14:00:00.000000], start_time: ~N[2010-04-17 14:00:00.000000], started_by: 42, state: 42}
-    @update_attrs %{end_time: ~N[2011-05-18 15:01:01.000000], start_time: ~N[2011-05-18 15:01:01.000000], started_by: 43, state: 43}
-    @invalid_attrs %{end_time: nil, start_time: nil, started_by: nil, state: nil}
-
-    def round_fixture(attrs \\ %{}) do
-      {:ok, round} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Rounds.create_round()
-
-      round
+    test "current_round! sets the state to in_progress" do
+      round = Rounds.current_round!
+      assert round.state == :in_progress
     end
 
-    test "list_round/0 returns all round" do
-      round = round_fixture()
-      assert Rounds.list_round() == [round]
+    test "create_round sets the state to in_progress" do
+      {:ok, round} = Rounds.create_round
+      assert round.state == :in_progress
     end
 
-    test "get_round!/1 returns the round with given id" do
-      round = round_fixture()
-      assert Rounds.get_round!(round.id) == round
+    test "current_round!" do
+      assert Enum.count(Rounds.list_round) == 0
+      _ = Rounds.current_round!
+      assert Enum.count(Rounds.list_round) == 1
     end
 
-    test "create_round/1 with valid data creates a round" do
-      assert {:ok, %Round{} = round} = Rounds.create_round(@valid_attrs)
-      assert round.end_time == ~N[2010-04-17 14:00:00.000000]
-      assert round.start_time == ~N[2010-04-17 14:00:00.000000]
-      assert round.started_by == 42
-      assert round.state == 42
+    test "rounds that are in_progress can not be marked as closed" do
+      round = Rounds.current_round!
+      {:error, _} = Rounds.update_round(round, %{"state" => "closed"})
     end
 
-    test "create_round/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Rounds.create_round(@invalid_attrs)
+    test "rounds that are in_progress can be marked as completed" do
+      round = Rounds.current_round!
+      {:ok, _} = Rounds.update_round(round, %{"state" => "completed"})
     end
 
-    test "update_round/2 with valid data updates the round" do
-      round = round_fixture()
-      assert {:ok, round} = Rounds.update_round(round, @update_attrs)
-      assert %Round{} = round
-      assert round.end_time == ~N[2011-05-18 15:01:01.000000]
-      assert round.start_time == ~N[2011-05-18 15:01:01.000000]
-      assert round.started_by == 43
-      assert round.state == 43
+    test "rounds can be moved to their current state" do
+      round = Rounds.current_round!
+      {:ok, _} = Rounds.update_round(round, %{"state" => "in_progress"})
     end
 
-    test "update_round/2 with invalid data returns error changeset" do
-      round = round_fixture()
-      assert {:error, %Ecto.Changeset{}} = Rounds.update_round(round, @invalid_attrs)
-      assert round == Rounds.get_round!(round.id)
+    test "rounds can not have a malformed correct_value" do
+      round = Rounds.current_round!
+      {:ok, _} = Rounds.update_round(round, %{"state" => "completed"})
+      {:error, _} = Rounds.update_round(round, %{"state" => "closed", "correct_value" => "0:40."})
     end
 
-    test "delete_round/1 deletes the round" do
-      round = round_fixture()
-      assert {:ok, %Round{}} = Rounds.delete_round(round)
-      assert_raise Ecto.NoResultsError, fn -> Rounds.get_round!(round.id) end
-    end
-
-    test "change_round/1 returns a round changeset" do
-      round = round_fixture()
-      assert %Ecto.Changeset{} = Rounds.change_round(round)
+    test "rounds accept a properly formed correct_value" do
+      round = Rounds.current_round!
+      {:ok, _} = Rounds.update_round(round, %{"state" => "completed"})
+      {:error, _} = Rounds.update_round(round, %{"state" => "closed", "correct_value" => "0:40.99"})
     end
   end
 end

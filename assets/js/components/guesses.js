@@ -1,12 +1,8 @@
 import { h, Component } from 'preact';
 
 const guessToSec = (guess) => {
-  const parts = /(\d+):(\d\d).(\d\d)/.exec(guess);
-  return (
-    parseInt(parts[1]) * 60 +
-    parseInt(parts[2]) +
-    parseInt(parts[3]) * 0.01
-  );
+  const parts = /(\d+):(\d\d.\d\d)/.exec(guess);
+  return parseInt(parts[1]) * 60 + parseFloat(parts[2]);
 };
 
 export default class Guesses extends Component {

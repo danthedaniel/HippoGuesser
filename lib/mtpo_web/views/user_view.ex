@@ -13,6 +13,6 @@ defmodule MtpoWeb.UserView do
   def render("user.json", %{user: user}) do
     %{id: user.id,
       name: user.name,
-      perm_level: user.perm_level}
+      wins: 0}
   end
 end

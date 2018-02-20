@@ -2,14 +2,23 @@ defmodule MtpoWeb.UserControllerTest do
   use MtpoWeb.ConnCase
 
   alias Mtpo.Users
-  alias Mtpo.Users.User
 
-  @create_attrs %{name: "some name", perm_level: 42}
-  @update_attrs %{name: "some updated name", perm_level: 43}
-  @invalid_attrs %{name: nil, perm_level: nil}
+  @admin_attrs %{name: "teaearlgraycold", perm_level: :admin}
+  @mod_attrs %{name: "summoningsalt", perm_level: :mod}
+  @user_attrs %{name: "andrewg", perm_level: :user}
 
-  def fixture(:user) do
-    {:ok, user} = Users.create_user(@create_attrs)
+  def admin do
+    {:ok, user} = Users.create_user(@admin_attrs)
+    user
+  end
+
+  def mod do
+    {:ok, user} = Users.create_user(@mod_attrs)
+    user
+  end
+
+  def user do
+    {:ok, user} = Users.create_user(@user_attrs)
     user
   end
 
@@ -17,65 +26,40 @@ defmodule MtpoWeb.UserControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  describe "index" do
-    test "lists all users", %{conn: conn} do
-      conn = get conn, user_path(conn, :index)
-      assert json_response(conn, 200)["data"] == []
-    end
+  test "admins can elevate other users to mod", %{conn: conn} do
+    pleb = user()
+    god = admin()
+    conn
+    |> Plug.Conn.assign(:current_user, god.id)
+    |> patch("/api/users/#{pleb.id}/mod")
+    |> json_response(200)
+    assert Users.get_user!(pleb.id).perm_level == :mod
   end
 
-  describe "create user" do
-    test "renders user when data is valid", %{conn: conn} do
-      conn = post conn, user_path(conn, :create), user: @create_attrs
-      assert %{"id" => id} = json_response(conn, 201)["data"]
-
-      conn = get conn, user_path(conn, :show, id)
-      assert json_response(conn, 200)["data"] == %{
-        "id" => id,
-        "name" => "some name",
-        "perm_level" => 42}
-    end
-
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post conn, user_path(conn, :create), user: @invalid_attrs
-      assert json_response(conn, 422)["errors"] != %{}
-    end
+  test "admins can elevate other users to admin", %{conn: conn} do
+    pleb = user()
+    god = admin()
+    conn
+    |> Plug.Conn.assign(:current_user, god.id)
+    |> patch("/api/users/#{pleb.id}/admin")
+    |> json_response(200)
+    assert Users.get_user!(pleb.id).perm_level == :admin
   end
 
-  describe "update user" do
-    setup [:create_user]
-
-    test "renders user when data is valid", %{conn: conn, user: %User{id: id} = user} do
-      conn = put conn, user_path(conn, :update, user), user: @update_attrs
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
-
-      conn = get conn, user_path(conn, :show, id)
-      assert json_response(conn, 200)["data"] == %{
-        "id" => id,
-        "name" => "some updated name",
-        "perm_level" => 43}
-    end
-
-    test "renders errors when data is invalid", %{conn: conn, user: user} do
-      conn = put conn, user_path(conn, :update, user), user: @invalid_attrs
-      assert json_response(conn, 422)["errors"] != %{}
-    end
+  test "mods can not elevate other users", %{conn: conn} do
+    pleb = user()
+    god = mod()
+    conn
+    |> Plug.Conn.assign(:current_user, god.id)
+    |> patch("/api/users/#{pleb.id}/mod")
+    |> json_response(403)
+    assert Users.get_user!(pleb.id).perm_level == :user
   end
 
-  describe "delete user" do
-    setup [:create_user]
-
-    test "deletes chosen user", %{conn: conn, user: user} do
-      conn = delete conn, user_path(conn, :delete, user)
-      assert response(conn, 204)
-      assert_error_sent 404, fn ->
-        get conn, user_path(conn, :show, user)
-      end
-    end
-  end
-
-  defp create_user(_) do
-    user = fixture(:user)
-    {:ok, user: user}
+  test "show is accessible without a current_user set", %{conn: conn} do
+    pleb = user()
+    conn
+    |> get("/api/users/#{pleb.id}")
+    |> json_response(200)
   end
 end

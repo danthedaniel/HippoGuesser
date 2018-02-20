@@ -4,11 +4,10 @@ defmodule Mtpo.UsersTest do
   alias Mtpo.Users
 
   describe "users" do
-    alias Mtpo.Users.User
+    # alias Mtpo.Users.User
 
-    @valid_attrs %{name: "some name", perm_level: 42}
-    @update_attrs %{name: "some updated name", perm_level: 43}
-    @invalid_attrs %{name: nil, perm_level: nil}
+    @user_perm PermLevel.__enum_map__[:user]
+    @valid_attrs %{name: "teaearlgraycold", perm_level: @user_perm}
 
     def user_fixture(attrs \\ %{}) do
       {:ok, user} =
@@ -19,49 +18,23 @@ defmodule Mtpo.UsersTest do
       user
     end
 
-    test "list_users/0 returns all users" do
+    test "can have permissions elevated" do
       user = user_fixture()
-      assert Users.list_users() == [user]
+      {:ok, _} = Users.update_user(user, %{perm_level: :mod})
     end
 
-    test "get_user!/1 returns the user with given id" do
-      user = user_fixture()
-      assert Users.get_user!(user.id) == user
+    test "must have a name" do
+      {:error, _} = Users.create_user(%{name: nil, perm_level: @user_perm})
     end
 
-    test "create_user/1 with valid data creates a user" do
-      assert {:ok, %User{} = user} = Users.create_user(@valid_attrs)
-      assert user.name == "some name"
-      assert user.perm_level == 42
+    test "defaults to user perm_level" do
+      {:ok, user} = Users.create_user(%{name: "teaearlgraycold"})
+      assert user.perm_level == :user
     end
 
-    test "create_user/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Users.create_user(@invalid_attrs)
-    end
-
-    test "update_user/2 with valid data updates the user" do
-      user = user_fixture()
-      assert {:ok, user} = Users.update_user(user, @update_attrs)
-      assert %User{} = user
-      assert user.name == "some updated name"
-      assert user.perm_level == 43
-    end
-
-    test "update_user/2 with invalid data returns error changeset" do
-      user = user_fixture()
-      assert {:error, %Ecto.Changeset{}} = Users.update_user(user, @invalid_attrs)
-      assert user == Users.get_user!(user.id)
-    end
-
-    test "delete_user/1 deletes the user" do
-      user = user_fixture()
-      assert {:ok, %User{}} = Users.delete_user(user)
-      assert_raise Ecto.NoResultsError, fn -> Users.get_user!(user.id) end
-    end
-
-    test "change_user/1 returns a user changeset" do
-      user = user_fixture()
-      assert %Ecto.Changeset{} = Users.change_user(user)
+    test "have unique names" do
+      {:ok, _} = Users.create_user(%{name: "teaearlgraycold", perm_level: @user_perm})
+      {:error, _} = Users.create_user(%{name: "teaearlgraycold", perm_level: @user_perm})
     end
   end
 end

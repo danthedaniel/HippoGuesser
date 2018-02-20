@@ -12,9 +12,6 @@ defmodule MtpoWeb.RoundView do
 
   def render("round.json", %{round: round}) do
     %{id: round.id,
-      start_time: round.start_time,
-      end_time: round.end_time,
-      state: round.state,
-      started_by: round.started_by}
+      state: round.state}
   end
 end

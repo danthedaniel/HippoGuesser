@@ -1,5 +1,6 @@
 defmodule MtpoWeb.SessionController do
   use MtpoWeb, :controller
+  alias Mtpo.Users
 
   action_fallback MtpoWeb.FallbackController
 
@@ -13,9 +14,10 @@ defmodule MtpoWeb.SessionController do
     if get_session(conn, :state) == state do
       token = Twitch.get_token!(code)
       username = Twitch.get_username(token["access_token"])
+      {:ok, user} = Users.create_or_get_user(%{name: username})
       conn = conn
       |> put_session(:auth_token, token["access_token"])
-      |> put_session(:username, username)
+      |> put_session(:user_id, user.id)
       |> put_resp_cookie("username", username, max_age: token["expires_in"], http_only: false)
       |> put_resp_header("Access-Control-Allow-Credentials", "true")
       redirect(conn, to: "/")
@@ -27,7 +29,7 @@ defmodule MtpoWeb.SessionController do
   def delete(conn, _params) do
     conn = conn
     |> delete_session(:auth_token)
-    |> delete_session(:username)
+    |> delete_session(:user_id)
     |> delete_resp_cookie("username")
     redirect(conn, to: "/")
   end
