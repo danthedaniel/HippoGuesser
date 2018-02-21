@@ -41,7 +41,7 @@ export default class Controls extends Component {
         <button
           type="button"
           class="btn btn-primary"
-          onClick={this.sendMessage.bind(this, "closed", "0:40.99")}
+          onClick={() => this.sendMessage("closed", prompt("What was the correct time?"))}
           disabled={props.state !== "completed"}>
           Call Winner
         </button>
