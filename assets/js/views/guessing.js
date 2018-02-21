@@ -49,9 +49,14 @@ export default class GuessView extends Component {
     this.channel = this.socket.channel("room:lobby");
     this.channel.join()
       .receive("ok", msg => this.gameState(msg.state, msg.guesses))
-      .receive("error", msg => console.log("Unable to join", msg));
-    this.channel.on("state", msg => this.gameState(msg.state, msg.guesses));
+      .receive("error", msg => this.flash.danger("Could not connect to guess channel."));
+    this.channel.on("state", this.gameState.bind(this));
     this.channel.on("guess", this.gameGuess.bind(this));
+    this.channel.on("winner", this.showWinner.bind(this))
+  }
+
+  showWinner(msg) {
+    this.props.flash.success(msg.text);
   }
 
   gameGuess(guess) {
@@ -60,13 +65,13 @@ export default class GuessView extends Component {
     this.setState(newState);
   }
 
-  gameState(game_state, guesses) {
+  gameState(msg) {
     let newState = Object.assign({}, this.state);
-    newState.game_state = game_state;
-    if (guesses) {
-      newState.guesses = guesses;
+    newState.game_state = msg.game_state;
+    if (msg.guesses) {
+      newState.guesses = msg.guesses;
     }
-    if (game_state === "in_progress") {
+    if (msg.game_state === "in_progress") {
       this.getSubmitStatus();
     }
     this.setState(newState);
@@ -96,22 +101,24 @@ export default class GuessView extends Component {
 
   render(props, state) {
     return (
-      <div class="row">
-        <div class="col-xs-12 col-md-12 col-lg-8">
-          <TwitchVideoEmbed channel="summoningsalt" />
-        </div>
-        <div class="col-xs-12 col-md-12 col-lg-4">
-          <div class="row">
-            <div class="col">
-              { props.username && <Guesser
-                submit={this.submitGuess.bind(this)}
-                update={this.setInput.bind(this, "guess")}
-                value={state.input.guess}
-                disabled={!this.state.can_submit} /> }
-              { props.username && props.moderator && <Controls
-                  state={state.game_state}
-                  channel={this.channel} /> }
-              <Guesses guesses={state.guesses} />
+      <div>
+        <div class="row">
+          <div class="col-xs-12 col-md-12 col-lg-8">
+            { /* <TwitchVideoEmbed channel="summoningsalt" /> */ }
+          </div>
+          <div class="col-xs-12 col-md-12 col-lg-4">
+            <div class="row">
+              <div class="col">
+                { props.username && <Guesser
+                  submit={this.submitGuess.bind(this)}
+                  update={this.setInput.bind(this, "guess")}
+                  value={state.input.guess}
+                  disabled={!this.state.can_submit} /> }
+                { props.username && props.moderator && <Controls
+                    state={state.game_state}
+                    channel={this.channel} /> }
+                <Guesses guesses={state.guesses} />
+              </div>
             </div>
           </div>
         </div>
