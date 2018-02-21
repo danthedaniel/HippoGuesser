@@ -1,12 +1,13 @@
 import { h, Component } from 'preact';
+import { Link } from 'react-router-dom';
 
 export default class NavBar extends Component {
   constructor(props) {
     super(props);
 
     this.options = [
-      "Guess!",
-      "Leaderboards"
+      {label: "Guess!", path: "/"},
+      {label: "Leaderboards", path: "/leaderboards/"}
     ]
   }
 
@@ -40,11 +41,14 @@ export default class NavBar extends Component {
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto">
             {
-              this.options.map(label => {
-                const item_class = label === props.active ? "active" : "";
+              this.options.map(item => {
+                const is_current = item.path === document.location.pathname;
+                const item_class = is_current ? "active" : "";
                 return (
                   <li class={`nav-item ${item_class}`}>
-                    <a class="nav-link" href="#">{ label }</a>
+                    <Link to={item.path} class="nav-link">
+                      { item.label }
+                    </Link>
                   </li>
                 );
               })

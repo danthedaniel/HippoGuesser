@@ -1,25 +1,16 @@
 import { h, Component } from 'preact';
-import TwitchVideoEmbed from './twitch/embed.js';
-import Guesses from './guesses.js';
-import Guesser from './guesser.js';
-import Controls from './controls.js';
-import Navbar from './navbar.js';
-import {Socket} from "phoenix";
+import TwitchVideoEmbed from '../components/twitch/embed.js';
+import Guesses from '../components/guesses.js';
+import Guesser from '../components/guesser.js';
+import Controls from '../components/controls.js';
+import {Socket} from 'phoenix';
 
-const cookies = document
-  .cookie
-  .split("; ")
-  .map(cookie => cookie.split("="))
-  .reduce((acc, x) => Object.assign(acc, {[x[0]]: x[1]}), {});
-
-export default class Layout extends Component {
+export default class GuessView extends Component {
   constructor(props) {
     super(props);
     this.state = {
       guesses: [],
-      username: cookies["username"],
-      moderator: cookies["roll"] === "mod" || cookies["role"] === "admin",
-      can_submit: true,
+      can_submit: false,
       game_state: null,
       input: {
         guess: ""
@@ -28,15 +19,30 @@ export default class Layout extends Component {
   }
 
   componentDidMount() {
-    this.socketConnect();
+    this.connectSocket();
   }
 
   componentWillUnmount() {
-    this.socket.disconnect();
     this.channel.leave();
+    this.socket.disconnect();
   }
 
-  socketConnect() {
+  getSubmitStatus() {
+    fetch("/api/can_submit",
+      {
+        method: "GET",
+        credentials: "same-origin"
+      })
+      .catch(error => console.error("Error:", error))
+      .then(response => response.json())
+      .then(response => {
+        let newState = Object.assign({}, this.state);
+        newState.can_submit = response.can_submit;
+        this.setState(newState);
+      });
+  }
+
+  connectSocket() {
     this.socket = new Socket("/socket");
     this.socket.connect();
 
@@ -59,6 +65,9 @@ export default class Layout extends Component {
     newState.game_state = game_state;
     if (guesses) {
       newState.guesses = guesses;
+    }
+    if (game_state === "in_progress") {
+      this.getSubmitStatus();
     }
     this.setState(newState);
   }
@@ -87,29 +96,22 @@ export default class Layout extends Component {
 
   render(props, state) {
     return (
-      <div class="container">
-        <div class="row">
-          <div class="col">
-            <Navbar active="Guess!" username={state.username} />
-          </div>
+      <div class="row">
+        <div class="col-xs-12 col-md-12 col-lg-8">
+          <TwitchVideoEmbed channel="summoningsalt" />
         </div>
-        <div class="row">
-          <div class="col-xs-12 col-md-12 col-lg-8">
-            { /*<TwitchVideoEmbed channel="summoningsalt" />*/ }
-          </div>
-          <div class="col-xs-12 col-md-12 col-lg-4">
-            <div class="row">
-              <div class="col">
-                { state.username && <Guesser
-                  submit={this.submitGuess.bind(this)}
-                  update={this.setInput.bind(this, "guess")}
-                  value={state.input.guess}
-                  disabled={!this.state.can_submit} /> }
-                { state.username && state.moderator && <Controls
-                    state={state.game_state}
-                    channel={this.channel} /> }
-                <Guesses guesses={state.guesses} />
-              </div>
+        <div class="col-xs-12 col-md-12 col-lg-4">
+          <div class="row">
+            <div class="col">
+              { props.username && <Guesser
+                submit={this.submitGuess.bind(this)}
+                update={this.setInput.bind(this, "guess")}
+                value={state.input.guess}
+                disabled={!this.state.can_submit} /> }
+              { props.username && props.moderator && <Controls
+                  state={state.game_state}
+                  channel={this.channel} /> }
+              <Guesses guesses={state.guesses} />
             </div>
           </div>
         </div>

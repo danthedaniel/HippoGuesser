@@ -26,7 +26,7 @@ export default class Guesses extends Component {
                     { guess.user }
                   </div>
                   <div class="col">
-                    { 0 }
+                    { guess.user_score }
                   </div>
                   <div class="col">
                     <kbd>{ guess.value }</kbd>

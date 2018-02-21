@@ -46,6 +46,10 @@ exports.config = {
   },
 
   npm: {
-    enabled: true
+    enabled: true,
+    aliases: {
+      'react': 'preact-compat',
+      'react-dom': 'preact-compat'
+    }
   }
 };

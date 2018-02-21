@@ -62,4 +62,27 @@ defmodule MtpoWeb.UserControllerTest do
     |> get("/api/users/#{pleb.id}")
     |> json_response(200)
   end
+
+  test "starts with empty leaderboard", %{conn: conn} do
+    body = conn
+    |> get("/api/leaderboard")
+    |> json_response(200)
+    assert Enum.count(body) == 0
+  end
+
+  test "says nil user can not submit", %{conn: conn} do
+    body = conn
+    |> get("/api/can_submit")
+    |> json_response(200)
+    assert !body["can_submit"]
+  end
+
+  test "says new user can submit", %{conn: conn} do
+    pleb = user()
+    body = conn
+    |> Plug.Conn.assign(:current_user, pleb.id)
+    |> get("/api/can_submit")
+    |> json_response(200)
+    assert body["can_submit"]
+  end
 end

@@ -1,8 +1,9 @@
 import { h, render } from 'preact';
-import Layout from './components/layout.js';
+import { BrowserRouter } from 'react-router-dom';
+import Layout from './views/layout.js';
 
 // Clear the contents of root (which contains a message about requiring JS)
 let root = document.getElementById("root");
 root.innerHTML = "";
 
-render(<Layout />, root);
+render(<BrowserRouter><Layout /></BrowserRouter>, root);

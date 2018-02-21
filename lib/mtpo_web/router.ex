@@ -17,6 +17,8 @@ defmodule MtpoWeb.Router do
   scope "/api", MtpoWeb do
     pipe_through :api
 
+    get "/leaderboard", UserController, :leaderboard
+    get "/can_submit", UserController, :can_submit
     get "/users/:id", UserController, :show
     patch "/users/:id/mod", UserController, :make_mod
     patch "/users/:id/admin", UserController, :make_admin
@@ -31,6 +33,8 @@ defmodule MtpoWeb.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
+    # For react-router
+    get "/:foo/", PageController, :index
     get "/auth/twitch", SessionController, :auth
     get "/auth/twitch/callback", SessionController, :callback
     get "/auth/logout", SessionController, :delete

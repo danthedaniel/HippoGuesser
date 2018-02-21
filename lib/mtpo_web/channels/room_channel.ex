@@ -34,6 +34,10 @@ defmodule MtpoWeb.RoomChannel do
 
   def guess_payload(guess) do
     user = Users.get_user!(guess.user_id)
-    %{user: user.name, value: guess.value}
+    %{
+      user: user.name,
+      value: guess.value,
+      user_score: Users.num_correct_guesses(user)
+    }
   end
 end

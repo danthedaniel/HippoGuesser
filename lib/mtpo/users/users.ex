@@ -8,9 +8,30 @@ defmodule Mtpo.Users do
   alias Mtpo.Users
   alias Mtpo.Users.User
   alias Mtpo.Rounds
+  alias Mtpo.Guesses.Guess
+
+  def leaderboard do
+    query = from g in Guess,
+      join: r in assoc(g, :round),
+      join: u in assoc(g, :user),
+      select: %{name: u.name, count: count(g.user_id)},
+      where: g.value == r.correct_value,
+      group_by: u.name,
+      order_by: [desc: u.name],
+      limit: 20
+    Repo.all query
+  end
+
+  def num_correct_guesses(%User{} = user) do
+    query = from g in Guess,
+      join: r in assoc(g, :round),
+      select: count(r.id),
+      where: g.user_id == ^user.id and g.value == r.correct_value
+    Repo.one query
+  end
 
   def has_guessed(user) do
-    round = Rounds.current_round!().id
+    round = Rounds.current_round!
     case Repo.get_by(Guess, round_id: round.id, user_id: user.id) do
       nil -> false
       _ -> true

@@ -6,6 +6,10 @@ defmodule MtpoWeb.UserController do
 
   action_fallback MtpoWeb.FallbackController
 
+  def can_submit(conn, _params) do
+    render(conn, "can_submit.json", %{user: Session.current_user(conn)})
+  end
+
   def show(conn, id, status) do
     user = Users.get_user!(id)
     conn
@@ -14,6 +18,10 @@ defmodule MtpoWeb.UserController do
   end
   def show(conn, %{"id" => id}) do
     show(conn, id, :ok)
+  end
+
+  def leaderboard(conn, _params) do
+    render(conn, "leaderboard.json", %{})
   end
 
   def make_mod(conn, %{"id" => id}) do

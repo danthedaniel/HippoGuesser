@@ -9,6 +9,9 @@
   "dependencies": {
     "phoenix": "file:../deps/phoenix",
     "preact": "^8.2.7",
+    "preact-compat": "^3.18.0",
+    "react-router": "^4.2.0",
+    "react-router-dom": "^4.2.2",
     "twitch-embed": "^1.1.4"
   },
   "devDependencies": {
