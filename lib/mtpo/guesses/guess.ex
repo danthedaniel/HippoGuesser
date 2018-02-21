@@ -22,7 +22,9 @@ defmodule Mtpo.Guesses.Guess do
       "min" => minutes,
       "sec" => seconds
     } = Regex.named_captures(Guess.value_regex, value)
-    Float.parse(minutes) * 60 + Float.parse(seconds)
+    {minutes, ""} = Float.parse(minutes)
+    {seconds, ""} = Float.parse(seconds)
+    minutes * 60.0 + seconds
   end
 
   @doc """

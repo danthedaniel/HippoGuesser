@@ -29,7 +29,7 @@ export default class Guesses extends Component {
                     { 0 }
                   </div>
                   <div class="col">
-                    <kbd>{ guess.time }</kbd>
+                    <kbd>{ guess.value }</kbd>
                   </div>
                 </div>
               </li>

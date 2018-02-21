@@ -16,20 +16,24 @@ export default class Layout extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      guesses: [
-        {user: "teaearlgraycold", time: "0:40.99"},
-        {user: "teaearlgraycold", time: "0:41.00"},
-        {user: "teaearlgraycold", time: "0:39.64"}
-      ],
+      guesses: [],
       username: cookies["username"],
-      moderator: true,
+      moderator: cookies["roll"] === "mod" || cookies["role"] === "admin",
       can_submit: true,
       game_state: null,
       input: {
         guess: ""
       }
     };
+  }
+
+  componentDidMount() {
     this.socketConnect();
+  }
+
+  componentWillUnmount() {
+    this.socket.disconnect();
+    this.channel.leave();
   }
 
   socketConnect() {
@@ -38,29 +42,41 @@ export default class Layout extends Component {
 
     this.channel = this.socket.channel("room:lobby");
     this.channel.join()
-      .receive("ok", msg => this.gameState(msg.state))
+      .receive("ok", msg => this.gameState(msg.state, msg.guesses))
       .receive("error", msg => console.log("Unable to join", msg));
-    this.channel.on("start", msg => this.gameState("in_progress"));
-    this.channel.on("stop", msg => this.gameState("completed"));
-    this.channel.on("winner", msg => this.gameState("closed"));
+    this.channel.on("state", msg => this.gameState(msg.state, msg.guesses));
+    this.channel.on("guess", this.gameGuess.bind(this));
   }
 
-  gameState(game_state) {
+  gameGuess(guess) {
+    let newState = Object.assign({}, this.state);
+    newState.guesses.push(guess);
+    this.setState(newState);
+  }
+
+  gameState(game_state, guesses) {
     let newState = Object.assign({}, this.state);
     newState.game_state = game_state;
+    if (guesses) {
+      newState.guesses = guesses;
+    }
     this.setState(newState);
   }
 
   submitGuess() {
-    let newState = Object.assign({}, this.state);
-    const newGuess = {
-      user: this.state.username,
-      time: this.state.input.guess
-    };
-    newState.guesses.push(newGuess);
-    newState.input.guess = "";
-    newState.can_submit = false;
-    this.setState(newState);
+    const value = this.state.input.guess;
+    fetch(`/api/rounds/current/guess?value=${value}`,
+      {
+        method: "POST",
+        credentials: "same-origin"
+      })
+      .catch(error => console.error("Error:", error))
+      .then(response => {
+        let newState = Object.assign({}, this.state);
+        newState.input.guess = "";
+        newState.can_submit = false;
+        this.setState(newState);
+      });
   }
 
   setInput(key, value) {

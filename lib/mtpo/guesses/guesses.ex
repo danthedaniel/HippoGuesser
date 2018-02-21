@@ -5,8 +5,8 @@ defmodule Mtpo.Guesses do
 
   import Ecto.Query, warn: false
   alias Mtpo.Repo
-
   alias Mtpo.Guesses.Guess
+  alias MtpoWeb.RoomChannel
 
   @doc """
   Returns the list of guesses.
@@ -52,9 +52,12 @@ defmodule Mtpo.Guesses do
 
   """
   def create_guess(attrs \\ %{}) do
-    %Guess{}
-    |> Guess.changeset(attrs)
-    |> Repo.insert()
+    case %Guess{} |> Guess.changeset(attrs) |> Repo.insert() do
+      {:ok, guess} ->
+        RoomChannel.broadcast_guess(guess)
+        {:ok, guess}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   @doc """

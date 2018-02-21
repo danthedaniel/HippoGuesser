@@ -5,7 +5,6 @@ defmodule MtpoWeb.RoundController do
   alias Mtpo.Rounds.Round
   alias Mtpo.Session
   alias Mtpo.Guesses
-  alias Mtpo.Users
 
   action_fallback MtpoWeb.FallbackController
 
@@ -34,6 +33,7 @@ defmodule MtpoWeb.RoundController do
           {:ok, round} = Rounds.create_round
           show(conn, :ok, round)
         :in_progress -> show(conn, :ok, Rounds.current_round!)
+        :completed -> show(conn, 400, Rounds.current_round!)
       end
     else
       show(conn, :forbidden, Rounds.current_round!)
@@ -69,10 +69,7 @@ defmodule MtpoWeb.RoundController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    round = Rounds.get_round!(id)
-    show(conn, :ok, round)
-  end
+  def show(conn, %{"id" => id}), do: show(conn, :ok, Rounds.get_round!(id))
   def show(conn, status, %Round{} = round) do
     conn
     |> put_status(status)

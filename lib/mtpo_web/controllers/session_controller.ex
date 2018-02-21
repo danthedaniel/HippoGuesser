@@ -18,7 +18,8 @@ defmodule MtpoWeb.SessionController do
       conn = conn
       |> put_session(:auth_token, token["access_token"])
       |> put_session(:user_id, user.id)
-      |> put_resp_cookie("username", username, max_age: token["expires_in"], http_only: false)
+      |> put_resp_cookie("username", user.name, max_age: token["expires_in"], http_only: false)
+      |> put_resp_cookie("role", Atom.to_string(user.perm_level), max_age: token["expires_in"], http_only: false)
       |> put_resp_header("Access-Control-Allow-Credentials", "true")
       redirect(conn, to: "/")
     else

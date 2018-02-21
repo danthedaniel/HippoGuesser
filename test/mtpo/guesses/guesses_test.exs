@@ -2,11 +2,11 @@ defmodule Mtpo.GuessesTest do
   use Mtpo.DataCase
 
   alias Mtpo.Guesses
+  alias Mtpo.Guesses.Guess
   alias Mtpo.Rounds
   alias Mtpo.Users
 
   describe "guess" do
-    # alias Mtpo.Guesses.Guess
     def default_changeset do
       round = Rounds.current_round!
       {:ok, user} = Users.create_or_get_user(%{name: "test_user"})
@@ -50,6 +50,11 @@ defmodule Mtpo.GuessesTest do
 
     test "can be built" do
       {:ok, _} = Guesses.create_guess(default_changeset())
+    end
+
+    test "can report time in seconds" do
+      {:ok, guess} = Guesses.create_guess(default_changeset())
+      assert Guess.value_seconds(guess.value) == 40.99
     end
 
     test "requires its round is in progress" do

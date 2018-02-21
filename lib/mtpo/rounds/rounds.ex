@@ -4,7 +4,7 @@ defmodule Mtpo.Rounds do
   """
   import Ecto.Query, warn: false
   alias Mtpo.Repo
-
+  alias MtpoWeb.RoomChannel
   alias Mtpo.Rounds
   alias Mtpo.Rounds.Round
 
@@ -68,9 +68,12 @@ defmodule Mtpo.Rounds do
     # TODO: This /should/ be handled by the database as a default...
     attrs = Map.put_new(attrs, :state, :in_progress)
 
-    %Round{}
-    |> Round.changeset(attrs)
-    |> Repo.insert()
+    case %Round{} |> Round.changeset(attrs) |> Repo.insert() do
+      {:ok, round} ->
+        RoomChannel.broadcast_state
+        {:ok, round}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   @doc """
@@ -86,9 +89,13 @@ defmodule Mtpo.Rounds do
 
   """
   def update_round(%Round{} = round, attrs) do
-    round
-    |> Round.changeset(attrs)
-    |> Repo.update()
+    state_change = Map.get(attrs, :state) != round.state
+    case round |> Round.changeset(attrs) |> Repo.update() do
+      {:ok, round} ->
+        if state_change, do: RoomChannel.broadcast_state
+        {:ok, round}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   @doc """

@@ -1,20 +1,39 @@
 defmodule MtpoWeb.RoomChannel do
   use Phoenix.Channel
+  alias Mtpo.{Rounds, Users, Repo}
 
   def join("room:lobby", _message, socket) do
-    {:ok, %{state: "closed"}, socket}
+    {
+      :ok,
+      full_state(),
+      socket
+    }
   end
 
-  def handle_in("start", _params, socket) do
-    broadcast! socket, "start", %{body: ""}
-    {:reply, :ok, socket}
+  def full_state do
+    round = Rounds.current_round! |> Repo.preload(:guesses)
+    %{
+      state: round.state,
+      guesses: Enum.map(round.guesses, &guess_payload/1)
+    }
   end
-  def handle_in("stop", _params, socket) do
-    broadcast! socket, "stop", %{body: ""}
-    {:reply, :ok, socket}
+
+  def broadcast_state do
+    round = Rounds.current_round!
+    payload = if round.state == :in_progress do
+      %{state: round.state, guesses: []}
+    else
+      %{state: round.state}
+    end
+    MtpoWeb.Endpoint.broadcast "room:lobby", "state", payload
   end
-  def handle_in("winner", %{body: winning_time}, socket) do
-    broadcast! socket, "winner", %{body: winning_time}
-    {:reply, :ok, socket}
+
+  def broadcast_guess(guess) do
+    MtpoWeb.Endpoint.broadcast "room:lobby", "guess", guess_payload(guess)
+  end
+
+  def guess_payload(guess) do
+    user = Users.get_user!(guess.user_id)
+    %{user: user.name, value: guess.value}
   end
 end
