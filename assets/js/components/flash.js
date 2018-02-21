@@ -29,9 +29,7 @@ export default class Flash extends Component {
     newState.flashes = newState.flashes
       .concat([flash])
       .filter(onlyUnique);
-    newState.flashes.forEach(flash => {
-      setTimeout(this.removeFlash.bind(this, flash), 8000);
-    });
+    setTimeout(this.removeFlash.bind(this, flash), 8000);
     this.setState(newState);
   }
 

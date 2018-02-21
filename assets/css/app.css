@@ -14,6 +14,7 @@ body {
     margin: 0 auto;
   }
 
+/* Flashes */
 .alert-container {
   position: absolute;
   top: 0.5rem;
@@ -52,13 +53,13 @@ body {
 }
 
 /* Twitch Embed */
+iframe {
+  height: 411px;
+  width: 100%;
+}
+
 .twitch-video-embed {
   margin: 0;
   padding: 0;
   overflow: hidden;
-}
-
-iframe {
-  height: 411px;
-  width: 100%;
 }

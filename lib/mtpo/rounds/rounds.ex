@@ -40,7 +40,7 @@ defmodule Mtpo.Rounds do
     |> Repo.preload(:guesses)
   end
 
-  def current_round!() do
+  def current_round! do
     case Round |> Ecto.Query.last |> Repo.one do
       nil ->
         {:ok, round} = Rounds.create_round

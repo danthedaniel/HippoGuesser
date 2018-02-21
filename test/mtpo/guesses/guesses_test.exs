@@ -68,5 +68,17 @@ defmodule Mtpo.GuessesTest do
       {:ok, _} = Guesses.create_guess(default_changeset())
       {:error, _} = Guesses.create_guess(default_changeset())
     end
+
+    test "guess values must be unique per round" do
+      {:ok, _} = Guesses.create_guess(default_changeset())
+      round = Rounds.current_round!
+      {:ok, user} = Users.create_or_get_user(%{name: "test_user_2"})
+      changeset = %{
+        "round_id" => round.id,
+        "user_id" => user.id,
+        "value" => "0:40.99"
+      }
+      {:error, _} = Guesses.create_guess(changeset)
+    end
   end
 end

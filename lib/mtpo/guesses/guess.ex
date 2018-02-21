@@ -53,5 +53,6 @@ defmodule Mtpo.Guesses.Guess do
     |> validate_format(:value, Guess.value_regex)
     |> Guess.validate_round
     |> unique_constraint(:round_id, name: :guesses_user_id_round_id_index)
+    |> unique_constraint(:round_id, name: :guesses_value_round_id_index)
   end
 end
