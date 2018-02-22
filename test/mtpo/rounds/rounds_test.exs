@@ -48,5 +48,10 @@ defmodule Mtpo.RoundsTest do
       {:ok, _} = Rounds.update_round(round, %{"state" => "completed"})
       {:error, _} = Rounds.update_round(round, %{"state" => "closed", "correct_value" => "0:40.99"})
     end
+
+    test "has nil winner when there are no guesses" do
+      round = Rounds.current_round!
+      assert is_nil(Rounds.winner(round))
+    end
   end
 end

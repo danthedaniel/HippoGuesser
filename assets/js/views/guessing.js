@@ -48,8 +48,8 @@ export default class GuessView extends Component {
 
     this.channel = this.socket.channel("room:lobby");
     this.channel.join()
-      .receive("ok", msg => this.gameState(msg.state, msg.guesses))
-      .receive("error", msg => this.flash.danger("Could not connect to guess channel."));
+      .receive("ok", msg => this.gameState(msg))
+      .receive("error", msg => this.props.flash.danger("Could not connect to guess channel."));
     this.channel.on("state", this.gameState.bind(this));
     this.channel.on("guess", this.gameGuess.bind(this));
     this.channel.on("winner", this.showWinner.bind(this))
@@ -67,11 +67,14 @@ export default class GuessView extends Component {
 
   gameState(msg) {
     let newState = Object.assign({}, this.state);
-    newState.game_state = msg.game_state;
+    newState.game_state = msg.state;
     if (msg.guesses) {
       newState.guesses = msg.guesses;
     }
-    if (msg.game_state === "in_progress") {
+    if (msg.winner) {
+      this.props.flash.success(`${msg.winner} has guessed correctly with ${msg.correct}!`);
+    }
+    if (msg.state === "in_progress") {
       this.getSubmitStatus();
     }
     this.setState(newState);
@@ -113,6 +116,7 @@ export default class GuessView extends Component {
                   submit={this.submitGuess.bind(this)}
                   update={this.setInput.bind(this, "guess")}
                   value={state.input.guess}
+                  flash={props.flash}
                   disabled={!this.state.can_submit} /> }
                 { props.username && props.moderator && <Controls
                     state={state.game_state}

@@ -7,6 +7,7 @@ defmodule Mtpo.Rounds do
   alias MtpoWeb.RoomChannel
   alias Mtpo.Rounds
   alias Mtpo.Rounds.Round
+  alias Mtpo.Guesses.Guess
 
   @doc """
   Returns the list of round.
@@ -46,6 +47,20 @@ defmodule Mtpo.Rounds do
         {:ok, round} = Rounds.create_round
         round
       round -> round
+    end
+  end
+
+  def winner(%Round{} = round) do
+    if not is_nil(round.correct_value) do
+      query = from g in Guess,
+        join: u in assoc(g, :user),
+        where: g.round_id == ^round.id and g.value == ^round.correct_value
+      case Repo.one(query) |> Repo.preload(:user) do
+        nil -> nil
+        guess -> guess.user
+      end
+    else
+      nil
     end
   end
 

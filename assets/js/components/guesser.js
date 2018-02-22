@@ -3,12 +3,15 @@ import { h, Component } from 'preact';
 export default class Guesser extends Component {
   constructor(props) {
     super(props);
+    this.invalid_message = "Time is invalid - must be formatted as 0:00.00";
   }
 
   handleGuessKeyDown(event) {
     if (event.key === "Enter") {
       if (/^\d+:\d\d.\d\d/.test(this.props.value)) {
         this.props.submit();
+      } else {
+        this.props.flash.danger(this.invalid_message);
       }
     }
   }
@@ -16,6 +19,8 @@ export default class Guesser extends Component {
   handleSubmitClick(event) {
     if (/^\d+:\d\d.\d\d/.test(this.props.value)) {
       this.props.submit();
+    } else {
+      this.props.flash.danger(this.invalid_message);
     }
   }
 

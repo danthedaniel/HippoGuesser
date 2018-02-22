@@ -1,6 +1,7 @@
 defmodule MtpoWeb.RoomChannel do
   use Phoenix.Channel
   alias Mtpo.{Rounds, Users, Repo}
+  require Logger
 
   def join("room:lobby", _message, socket) do
     {
@@ -21,10 +22,15 @@ defmodule MtpoWeb.RoomChannel do
 
   def broadcast_state do
     round = Rounds.current_round!
-    payload = if round.state == :in_progress do
-      %{state: round.state, guesses: []}
-    else
-      %{state: round.state}
+    payload = case round.state do
+      :in_progress -> %{state: round.state, guesses: []}
+      :closed ->
+        %{
+          state: round.state,
+          winner: Rounds.winner(round).name,
+          correct: round.correct_value
+        }
+      _ -> %{state: round.state}
     end
     MtpoWeb.Endpoint.broadcast "room:lobby", "state", payload
   end

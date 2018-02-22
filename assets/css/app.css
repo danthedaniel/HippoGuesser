@@ -18,7 +18,7 @@ body {
 .alert-container {
   position: absolute;
   top: 0.5rem;
-  width: 400px;
+  width: 500px;
   left: 50%;
   margin-left: -250px;
 }
@@ -28,7 +28,11 @@ body {
     max-height: 0;
     padding: 0  1.25rem;
   }
-  50% {
+  25% {
+    max-height: 50px;
+    padding: 0.75rem 1.25rem
+  }
+  75% {
     max-height: 50px;
     padding: 0.75rem 1.25rem
   }
@@ -45,11 +49,13 @@ body {
 }
 
 .alert {
+  z-index: 1;
   opacity: 0.8;
 }
 
 .alert:hover {
   opacity: 1.0;
+  cursor: pointer;
 }
 
 /* Twitch Embed */
