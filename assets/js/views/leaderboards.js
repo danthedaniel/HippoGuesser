@@ -32,8 +32,12 @@ export default class LeaderboardView extends Component {
     return (
       <div class="row">
         <div class="col">
-          <h4 style="margin: 0 auto">Leaderboards</h4>
           <ul class="list-group">
+            {
+              state.leaderboard.length === 0 &&
+              <div class="alert alert-info" role="alert">
+                No one has won yet!
+              </div> }
             {
               state.leaderboard.map(entry => {
                 return (

@@ -47,7 +47,7 @@ export default class Flash extends Component {
           state.flashes.map(flash => {
             return (
               <div
-                class={`alert alert-animate ${flash.classes}`}
+                class={`alert alert-clickable alert-animate ${flash.classes}`}
                 role="alert"
                 onClick={() => this.removeFlash(flash)}>
                 { flash.text }
