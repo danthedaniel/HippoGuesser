@@ -162,6 +162,9 @@ defmodule MtpoBot.Bot do
         "hipposite" ->
           url = "https://mtpo.teaearlgraycold.me/"
           Client.msg config.client, :privmsg, config.channel, url
+        "gg"        ->
+          {:ok, _} = Rounds.create_round
+          Client.msg config.client, :privmsg, config.channel, "no re"
       end
     end
   end
