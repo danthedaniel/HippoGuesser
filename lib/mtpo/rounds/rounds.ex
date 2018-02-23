@@ -116,7 +116,7 @@ defmodule Mtpo.Rounds do
       {:ok, round} ->
         if state_change do
           RoomChannel.broadcast_state(round)
-          if round.state == :closed and Mix.env != :test do
+          if round.state == :closed and Application.get_env(:mtpo, :run_bot) do
             name = String.to_atom(Application.get_env(:mtpo, :bot)[:name])
             send name, {:winner, round}
           end

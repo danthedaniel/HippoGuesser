@@ -17,3 +17,6 @@ config :mtpo, Mtpo.Repo,
   database: "mtpo_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+  config :mtpo,
+    run_bot: false

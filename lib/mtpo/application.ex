@@ -28,9 +28,9 @@ defmodule Mtpo.Application do
   # Add the IRC bot only when not testing
   def add_bot(children) do
     import Supervisor.Spec
-    case Mix.env do
-      :test -> children
-      _     -> children ++ [worker(Bot, [Application.get_env(:mtpo, :bot)])]
+    case Application.get_env(:mtpo, :run_bot) do
+      false -> children
+      true  -> children ++ [worker(Bot, [Application.get_env(:mtpo, :bot)])]
     end
   end
 end

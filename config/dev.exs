@@ -57,4 +57,7 @@ config :mtpo, Mtpo.Repo,
   hostname: "localhost",
   pool_size: 10
 
+config :mtpo,
+  run_bot: true
+
 import_config "dev.secret.exs"

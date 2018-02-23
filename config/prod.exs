@@ -59,6 +59,9 @@ config :phoenix, :serve_endpoints, true
 #     config :mtpo, MtpoWeb.Endpoint, server: true
 #
 
+config :mtpo,
+  run_bot: true
+
 # Finally import the config/prod.secret.exs
 # which should be versioned separately.
 import_config "prod.secret.exs"
