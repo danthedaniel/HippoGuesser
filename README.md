@@ -19,4 +19,4 @@ to defeat King Hippo in a speedrun.
 * `!start` - Start a new round
 * `!stop` - End guessing period
 * `!winner 0:00.00` - Select winner by the correct time
-* `!gg` - Close the round without selecting a winner.
+* `!gg` - Close the round without selecting a winner
