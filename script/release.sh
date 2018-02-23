@@ -1,6 +1,10 @@
 #!/bin/bash
 # Prepare MTPO for deployment to production.
 
+if ! mix test; then
+  exit 1
+fi
+
 cd assets
 brunch build --production
 cd ..
