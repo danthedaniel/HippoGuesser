@@ -33,7 +33,7 @@ defmodule Mtpo.Guesses.Guess do
   def validate_round(%Ecto.Changeset{} = changeset) do
     %{changes: changes, errors: errors} = changeset
     value = Map.get(changes, :round_id)
-    new = if is_nil(value) or Rounds.get_round!(value).state == :in_progress do
+    new = if not is_nil(value) and Rounds.get_round!(value).state == :in_progress do
       []
     else
       [{:state, {"round is not in progress", [validation: :round]}}]

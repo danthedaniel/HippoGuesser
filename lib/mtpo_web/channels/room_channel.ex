@@ -27,7 +27,7 @@ defmodule MtpoWeb.RoomChannel do
       :closed ->
         %{
           state: round.state,
-          winner: Rounds.winner(round).name,
+          winner: winning_name(round),
           correct: round.correct_value
         }
       _ -> %{state: round.state}
@@ -46,5 +46,12 @@ defmodule MtpoWeb.RoomChannel do
       value: guess.value,
       user_score: Users.num_correct_guesses(user)
     }
+  end
+
+  def winning_name(round) do
+    case Rounds.winner(round) do
+      nil -> nil
+      user -> user.name
+    end
   end
 end

@@ -13,7 +13,7 @@ defmodule MtpoWeb.SessionController do
   def callback(conn, %{"state" => state, "code" => code}) do
     if get_session(conn, :state) == state do
       token = Twitch.get_token!(code)
-      username = Twitch.get_username(token["access_token"])
+      username = Twitch.get_username(token["access_token"]) |> String.downcase
       {:ok, user} = Users.create_or_get_user(%{name: username})
       conn = conn
       |> put_session(:auth_token, token["access_token"])

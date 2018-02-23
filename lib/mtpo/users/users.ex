@@ -38,6 +38,10 @@ defmodule Mtpo.Users do
     end
   end
 
+  def can_state_change(user) do
+    Enum.member?([:mod, :admin], user.perm_level)
+  end
+
   @doc """
   Returns the list of users.
 

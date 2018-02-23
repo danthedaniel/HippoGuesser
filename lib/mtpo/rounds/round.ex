@@ -32,8 +32,8 @@ defmodule Mtpo.Rounds.Round do
   def validate_transition(%Ecto.Changeset{} = changeset, round) do
     %{changes: changes, errors: errors} = changeset
     value = Map.get(changes, :state)
-    Logger.debug "#{round.state}, #{value}"
     valid = Enum.member?(Round.valid_transitions, {round.state, value})
+
     new = if is_nil(value) or is_nil(round.state) or valid do
       []
     else

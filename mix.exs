@@ -20,7 +20,7 @@ defmodule Mtpo.Mixfile do
   def application do
     [
       mod: {Mtpo.Application, []},
-      extra_applications: [:logger, :runtime_tools, :oauth2]
+      extra_applications: [:logger, :runtime_tools, :oauth2, :exirc]
     ]
   end
 
