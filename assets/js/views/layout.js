@@ -16,7 +16,7 @@ export default class Layout extends Component {
     super(props);
     this.state = {
       username: cookies["username"],
-      moderator: cookies["roll"] === "mod" || cookies["role"] === "admin",
+      moderator: cookies["role"] === "mod" || cookies["role"] === "admin",
       flash: null
     };
   }
