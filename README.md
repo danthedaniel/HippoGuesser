@@ -1,6 +1,8 @@
 Hippo Guesser
 ===
 
+[![MIT License](https://img.shields.io/packagist/l/doctrine/orm.svg)]()
+
 A real-time *Mike Tyson's Punch Out* guess collector for how long it will take
 to defeat King Hippo in a speedrun.
 
@@ -10,12 +12,19 @@ to defeat King Hippo in a speedrun.
 * Dark theme (~~sorry, no light theme is available~~ light themes are for chumps)
 * Twitch chat integration
 
-## Chat commands
+## Tech Used
+
+* [Preact](https://preactjs.com/)
+* [React Router v4](https://github.com/ReactTraining/react-router)
+* [Bootstrap](https://getbootstrap.com) (with [Bootswatch Lux theme](https://bootswatch.com/lux/))
+* [Phoenix Framework](https://phoenixframework.org)
+
+## Twitch Chat commands
 
 ### Users
 * `!guess 0:00.00` - Enter a guess for the current round.
 
-### Moderators
+### Moderators / Broadcaster
 * `!start` - Start a new round
 * `!stop` - End guessing period
 * `!winner 0:00.00` or `!w 0:00.00` - Select winner by the correct time
