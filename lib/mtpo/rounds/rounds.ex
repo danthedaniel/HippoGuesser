@@ -64,6 +64,13 @@ defmodule Mtpo.Rounds do
     end
   end
 
+  def winning_name(round) do
+    case Rounds.winner(round) do
+      nil -> nil
+      user -> user.name
+    end
+  end
+
   @doc """
   Creates a round. Will set all previous rounds to :closed.
 
@@ -85,7 +92,7 @@ defmodule Mtpo.Rounds do
 
     case %Round{} |> Round.changeset(attrs) |> Repo.insert() do
       {:ok, round} ->
-        RoomChannel.broadcast_state
+        RoomChannel.broadcast_state(round)
         {:ok, round}
       {:error, changeset} -> {:error, changeset}
     end
@@ -107,7 +114,13 @@ defmodule Mtpo.Rounds do
     state_change = Map.get(attrs, :state) != round.state
     case round |> Round.changeset(attrs) |> Repo.update() do
       {:ok, round} ->
-        if state_change, do: RoomChannel.broadcast_state
+        if state_change do
+          RoomChannel.broadcast_state(round)
+          if round.state == :closed do
+            name = String.to_atom(Application.get_env(:mtpo, :bot)[:name])
+            send name, {:winner, round}
+          end
+        end
         {:ok, round}
       {:error, changeset} -> {:error, changeset}
     end

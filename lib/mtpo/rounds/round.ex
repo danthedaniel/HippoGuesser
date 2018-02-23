@@ -48,6 +48,7 @@ defmodule Mtpo.Rounds.Round do
 
   @doc false
   def changeset(%Round{} = round, attrs) do
+    # TODO: Validate that correct_value is set when moved to :closed state
     round
     |> cast(attrs, [:state, :correct_value])
     |> validate_transition(round)

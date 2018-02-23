@@ -69,9 +69,9 @@ defmodule MtpoBot.Bot do
   end
   def handle_info({:joined, channel}, config) do
     Logger.debug "Joined #{channel}"
-    Client.msg config.client, :privmsg, config.channel, "/mods"
     {:noreply, config}
   end
+  # Twitch chat event handler
   def handle_info({:unrecognized, "@badges" <> tags, %IrcMessage{} = message}, config) do
     tag_map = make_map("@badges" <> tags, ";", "=")
 
@@ -80,20 +80,31 @@ defmodule MtpoBot.Bot do
       message = parse_msg(message.args |> List.first)
 
       try do
-        parse_command(message, badges)
+        parse_command(message, badges, config)
       rescue
-        e -> Logger.error inspect(e)
+        e -> Logger.error "Error in command processing: #{inspect(e)}"
       end
     end
     {:noreply, config}
   end
-  # Catch-all for messages you don't care about
+  def handle_info({:winner, round}, config) do
+    name = Rounds.winning_name(round)
+    alert = if is_nil(name) do
+      "No one guessed correctly :("
+    else
+      "@#{name} has guessed correctly with #{round.correct_value}"
+    end
+    Logger.debug alert
+    Client.msg config.client, :privmsg, config.channel, alert
+    {:noreply, config}
+  end
   def handle_info(_msg, config) do
     {:noreply, config}
   end
 
   def terminate(_, state) do
-    # Quit the channel and close the underlying client connection when the process is terminating
+    # Quit the channel and close the underlying client connection when the
+    # process is terminating
     Client.quit state.client, "Goodbye, cruel world."
     Client.stop! state.client
     :ok
@@ -123,7 +134,7 @@ defmodule MtpoBot.Bot do
     Regex.named_captures(pattern, msg)
   end
 
-  def parse_command(msg, badges) do
+  def parse_command(msg, badges, config) do
     %{
       "nick" => nick,
       "text" => text,
@@ -145,10 +156,12 @@ defmodule MtpoBot.Bot do
           if Enum.count(args) > 0 do
             guess(user, args |> List.first)
           end
-        "start"  -> state_change(user, "start", args)
-        "stop"   -> state_change(user, "stop", args)
-        "winner" -> state_change(user, "winner", args)
-        _ -> nil
+        "start"     -> state_change(user, "start", args)
+        "stop"      -> state_change(user, "stop", args)
+        "winner"    -> state_change(user, "winner", args)
+        "hipposite" ->
+          url = "https://mtpo.teaearlgraycold.me/"
+          Client.msg config.client, :privmsg, config.channel, url
       end
     end
   end
@@ -224,7 +237,6 @@ defmodule MtpoBot.Bot do
         :closed -> Rounds.create_round
         :in_progress -> Rounds.update_round(round, %{state: state})
         :completed ->
-          Logger.debug inspect(args)
           correct = Enum.at(args, 0) |> check_time
           if not is_nil(correct) do
             Rounds.update_round(round, %{state: state, correct_value: correct})

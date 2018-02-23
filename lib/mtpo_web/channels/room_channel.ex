@@ -20,14 +20,13 @@ defmodule MtpoWeb.RoomChannel do
     }
   end
 
-  def broadcast_state do
-    round = Rounds.current_round!
+  def broadcast_state(round) do
     payload = case round.state do
       :in_progress -> %{state: round.state, guesses: []}
       :closed ->
         %{
           state: round.state,
-          winner: winning_name(round),
+          winner: Rounds.winning_name(round),
           correct: round.correct_value
         }
       _ -> %{state: round.state}
@@ -46,12 +45,5 @@ defmodule MtpoWeb.RoomChannel do
       value: guess.value,
       user_score: Users.num_correct_guesses(user)
     }
-  end
-
-  def winning_name(round) do
-    case Rounds.winner(round) do
-      nil -> nil
-      user -> user.name
-    end
   end
 end
