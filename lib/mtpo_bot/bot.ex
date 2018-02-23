@@ -92,7 +92,7 @@ defmodule MtpoBot.Bot do
     alert = if is_nil(name) do
       "No one guessed correctly :("
     else
-      "@#{name} has guessed correctly with #{round.correct_value}"
+      "@#{name} has guessed correctly with #{round.correct_value}! summonSalt"
     end
     Logger.debug alert
     Client.msg config.client, :privmsg, config.channel, alert
@@ -163,8 +163,10 @@ defmodule MtpoBot.Bot do
           url = "https://mtpo.teaearlgraycold.me/"
           Client.msg config.client, :privmsg, config.channel, url
         "gg"        ->
-          {:ok, _} = Rounds.create_round
-          Client.msg config.client, :privmsg, config.channel, "no re"
+          if Users.can_state_change(user) do
+            {:ok, _} = Rounds.create_round
+            Client.msg config.client, :privmsg, config.channel, "no re"
+          end
       end
     end
   end
