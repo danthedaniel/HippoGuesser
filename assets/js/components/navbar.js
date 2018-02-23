@@ -5,23 +5,31 @@ export default class NavBar extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      collapse: true
+    };
+
     this.options = [
       {label: "Guess!", path: "/"},
       {label: "Leaderboards", path: "/leaderboards/"}
     ]
   }
 
+  toggleCollapse() {
+    let newState = Object.assign({}, this.state);
+    newState.collapse = !newState.collapse;
+    this.setState(newState);
+  }
+
   logInButton() {
     if (this.props.username) {
       return (
-        <div>
-          <span class="btn my-2 my-sm-0 disabled">{ this.props.username }</span>
-          <a
-            href="/auth/logout"
-            class="btn btn-outline-danger my-2 my-sm-0">
-            Log Out
-          </a>
-        </div>
+        <a
+          href="/auth/logout"
+          style="float: right;"
+          class="btn btn-outline-danger my-2 my-sm-0">
+          Log Out
+        </a>
       );
     } else {
       return (
@@ -35,10 +43,18 @@ export default class NavBar extends Component {
   }
 
   render(props, state) {
+    const collapse = state.collapse ? "collapse" : "";
     return (
-      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <a class="navbar-brand" href="#">Hippo Guesser</a>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <button
+          class="navbar-toggler"
+          type="button"
+          onClick={this.toggleCollapse.bind(this)}
+          aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class={`${collapse} navbar-collapse`} id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto">
             {
               this.options.map(item => {
@@ -53,6 +69,9 @@ export default class NavBar extends Component {
                 );
               })
             }
+            { props.username && <li class="nav-item">
+              <a class="nav-link disabled">Welcome, { this.props.username }!</a>
+            </li> }
           </ul>
           <form class="form-inline my-2 my-lg-0">
             { this.logInButton() }

@@ -8,7 +8,7 @@ export default class Guesser extends Component {
 
   handleGuessKeyDown(event) {
     if (event.key === "Enter") {
-      if (/^\d+:\d\d.\d\d/.test(this.props.value)) {
+      if (/^\d+:\d\d.\d\d$/.test(this.props.value)) {
         this.props.submit();
       } else {
         this.props.flash.danger(this.invalid_message);
@@ -17,7 +17,7 @@ export default class Guesser extends Component {
   }
 
   handleSubmitClick(event) {
-    if (/^\d+:\d\d.\d\d/.test(this.props.value)) {
+    if (/^\d+:\d\d.\d\d$/.test(this.props.value)) {
       this.props.submit();
     } else {
       this.props.flash.danger(this.invalid_message);
@@ -43,6 +43,7 @@ export default class Guesser extends Component {
           type="text"
           class="form-control"
           placeholder="0:00.00"
+          pattern="^\d+:\d\d.\d\d$"
           value={props.value}
           disabled={props.disabled}
           onInput={this.handleInput.bind(this)}

@@ -52,7 +52,6 @@ export default class GuessView extends Component {
       .receive("error", msg => this.props.flash.danger("Could not connect to guess channel."));
     this.channel.on("state", this.gameState.bind(this));
     this.channel.on("guess", this.gameGuess.bind(this));
-    this.channel.on("winner", this.showWinner.bind(this))
   }
 
   showWinner(msg) {

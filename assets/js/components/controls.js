@@ -6,11 +6,9 @@ export default class Controls extends Component {
   }
 
   sendMessage(type, correct_value) {
-    let url;
+    let url = `/api/rounds/current/change/${type}`;
     if (correct_value) {
-      url = `/api/rounds/current/change/${type}?correct=${correct_value}`;
-    } else {
-      url = `/api/rounds/current/change/${type}`;
+      url += `?correct=${correct_value}`;
     }
     fetch(url,
       {
@@ -23,7 +21,7 @@ export default class Controls extends Component {
 
   render(props, state) {
     return (
-      <div class="btn-group" role="group" aria-label="Basic example">
+      <div class="btn-group" role="group" aria-label="Moderator Controls">
         <button
           type="button"
           class="btn btn-success"
