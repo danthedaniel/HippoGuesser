@@ -92,7 +92,7 @@ defmodule MtpoBot.Bot do
     alert = if is_nil(name) do
       "No one guessed correctly :("
     else
-      "@#{name} has guessed correctly with #{round.correct_value}! summonSalt"
+      "@#{name} has guessed correctly with #{round.correct_value}! ConcernFroge"
     end
     Logger.debug alert
     Client.msg config.client, :privmsg, config.channel, alert
@@ -146,10 +146,11 @@ defmodule MtpoBot.Bot do
     {:ok, user} = Users.update_user(user, %{perm_level: perm_level})
 
     # Parse the command
-    command_pattern = ~r/!(?<name>\S+)\s?(?<args>.*)/
+    command_pattern = ~r/^!(?<name>\S+)\s?(?<args>.*)/
     command = Regex.named_captures(command_pattern, text)
 
     if not is_nil(command) do
+      Logger.info msg
       args = command["args"] |> String.split(" ")
       case command["name"] do
         "guess"  ->
@@ -159,12 +160,13 @@ defmodule MtpoBot.Bot do
         "start"     -> state_change(user, "start", args)
         "stop"      -> state_change(user, "stop", args)
         "winner"    -> state_change(user, "winner", args)
+        "w"         -> state_change(user, "winner", args)
         "hipposite" ->
           url = "https://mtpo.teaearlgraycold.me/"
           Client.msg config.client, :privmsg, config.channel, url
         "gg"        ->
           if Users.can_state_change(user) do
-            {:ok, _} = Rounds.create_round
+            Rounds.close_all
             Client.msg config.client, :privmsg, config.channel, "no re"
           end
       end

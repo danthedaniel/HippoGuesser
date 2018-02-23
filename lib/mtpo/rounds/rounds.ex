@@ -72,6 +72,15 @@ defmodule Mtpo.Rounds do
   end
 
   @doc """
+  Closes all rounds.
+  """
+  def close_all do
+    closed = RoundState.__enum_map__[:closed]
+    from(r in Round, where: r.state != ^closed)
+    |> Repo.update_all(set: [state: closed])
+  end
+
+  @doc """
   Creates a round. Will set all previous rounds to :closed.
 
   ## Examples
@@ -84,9 +93,7 @@ defmodule Mtpo.Rounds do
 
   """
   def create_round(attrs \\ %{}) do
-    closed = RoundState.__enum_map__[:closed]
-    from(r in Round, where: r.state != ^closed)
-    |> Repo.update_all(set: [state: closed])
+    Rounds.close_all
     # TODO: This /should/ be handled by the database as a default...
     attrs = Map.put_new(attrs, :state, :in_progress)
 

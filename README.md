@@ -18,5 +18,5 @@ to defeat King Hippo in a speedrun.
 ### Moderators
 * `!start` - Start a new round
 * `!stop` - End guessing period
-* `!winner 0:00.00` - Select winner by the correct time
+* `!winner 0:00.00` or `!w 0:00.00` - Select winner by the correct time
 * `!gg` - Close the round without selecting a winner

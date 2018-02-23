@@ -23,13 +23,10 @@ export default class Guesses extends Component {
               <li class="list-group-item bg-dark">
                 <div class="row">
                   <div class="col">
-                    { guess.user }
+                    { guess.user } { guess.user_score }
                   </div>
                   <div class="col">
-                    { guess.user_score }
-                  </div>
-                  <div class="col">
-                    <kbd>{ guess.value }</kbd>
+                    <kbd class="float-right">{ guess.value }</kbd>
                   </div>
                 </div>
               </li>
