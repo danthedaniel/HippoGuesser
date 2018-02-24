@@ -79,11 +79,11 @@ defmodule MtpoBot.Bot do
       badges = make_map(tag_map["@badges"], ",", "/")
       message = parse_msg(message.args |> List.first)
 
-      try do
+      # try do
         parse_command(message, badges, config)
-      rescue
-        e -> Logger.error "Error in command processing: #{inspect(e)}"
-      end
+      # rescue
+      #   e -> Logger.error "Error in command processing: #{inspect(e)}"
+      # end
     end
     {:noreply, config}
   end
@@ -150,7 +150,7 @@ defmodule MtpoBot.Bot do
     command = Regex.named_captures(command_pattern, text)
 
     if not is_nil(command) do
-      Logger.info msg
+      Logger.info inspect(msg)
       args = command["args"] |> String.split(" ")
       case command["name"] do
         "guess"  ->
