@@ -15,6 +15,6 @@ defmodule MtpoWeb.FallbackController do
   def call(conn, {:error, :not_found}) do
     conn
     |> put_status(:not_found)
-    |> render(MtpoWeb.ErrorView, :"404")
+    |> render("/", :"404")
   end
 end

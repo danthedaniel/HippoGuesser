@@ -33,10 +33,11 @@ defmodule MtpoWeb.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
-    # For react-router
-    get "/:foo/", PageController, :index
     get "/auth/twitch", SessionController, :auth
     get "/auth/twitch/callback", SessionController, :callback
     get "/auth/logout", SessionController, :delete
+
+    # For react router
+    get "/*path", PageController, :index
   end
 end

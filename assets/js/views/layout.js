@@ -1,9 +1,11 @@
 import { h, Component, createElement } from 'preact';
 import { Route, Switch } from 'react-router-dom';
 import Navbar from '../components/navbar.js';
+import Flash from '../components/flash.js';
+
 import GuessView from './guessing.js';
 import LeaderboardView from './leaderboards';
-import Flash from '../components/flash.js';
+import NotFoundView from './not_found.js';
 
 const cookies = document
   .cookie
@@ -41,6 +43,7 @@ export default class Layout extends Component {
         <Switch>
           <Route exact path="/" render={() => (<GuessView {...state} />)} />
           <Route path="/leaderboards/" component={LeaderboardView} />
+          <Route component={NotFoundView} />
         </Switch>
       </div>
     );
