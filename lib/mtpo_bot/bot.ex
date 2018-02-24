@@ -223,8 +223,6 @@ defmodule MtpoBot.Bot do
       else
         time_captures["minutes"] <> ":" <> time_captures["seconds"]
       end
-    else
-      nil
     end
   end
 

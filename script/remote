@@ -1,0 +1,8 @@
+#!/bin/bash
+# Run a command on the remote server.
+
+PORT=1337
+APP_PATH=/srv/app
+HOST=mtpo
+
+ssh "$HOST" "PORT=$PORT $APP_PATH/bin/mtpo $1"
