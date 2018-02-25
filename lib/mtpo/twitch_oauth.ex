@@ -1,5 +1,6 @@
 defmodule Twitch do
   use OAuth2.Strategy
+  require Logger
 
   # Public API
 
@@ -52,7 +53,9 @@ defmodule Twitch do
 
     case OAuth2.Client.post(c, "/api/oauth2/token", "", [], [params: c.params]) do
       {:ok, resp} -> resp.body
-      {:error, _} -> nil
+      {:error, e} ->
+        Logger.error inspect(e)
+        nil
     end
   end
 end
