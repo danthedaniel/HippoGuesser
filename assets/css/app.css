@@ -14,7 +14,7 @@ body {
     margin: 0 auto;
   }
 
-.list-group-item.bg-dark.active {
+.list-group-item.winner {
   background-color: #579 !important;
 }
 

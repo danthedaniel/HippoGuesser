@@ -116,7 +116,7 @@ export default class GuessView extends Component {
           <div class="col-xs-12 col-md-12 col-lg-4">
             <div class="row">
               <div class="col">
-                { !props.username  &&
+                { !props.username &&
                   <div class="alert alert-info" role="alert">
                     Please log in to participate.
                   </div> }

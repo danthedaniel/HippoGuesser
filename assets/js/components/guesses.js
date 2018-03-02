@@ -20,7 +20,7 @@ export default class Guesses extends Component {
         {
           props.guesses.sort(this.guessSort).map(guess => {
             const correct_guess = guess.value === props.correct;
-            const item_class = correct_guess ? "active" : "";
+            const item_class = correct_guess ? "winner" : "";
             return (
               <li class={`list-group-item bg-dark ${item_class}`}>
                 <div class="row">
