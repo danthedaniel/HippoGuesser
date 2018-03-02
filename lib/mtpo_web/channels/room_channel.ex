@@ -15,6 +15,7 @@ defmodule MtpoWeb.RoomChannel do
     round = Rounds.current_round! |> Repo.preload(:guesses)
     %{
       state: round.state,
+      correct: round.correct_value,
       # TODO: Re-write this as a query
       guesses: Enum.map(round.guesses, &guess_payload/1)
     }

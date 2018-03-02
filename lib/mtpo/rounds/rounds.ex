@@ -59,8 +59,6 @@ defmodule Mtpo.Rounds do
         nil -> nil
         guess -> guess.user
       end
-    else
-      nil
     end
   end
 

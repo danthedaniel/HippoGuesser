@@ -13,7 +13,6 @@ to defeat King Hippo in a speedrun.
 * Twitch chat integration
 
 ## Tech Used
-
 * [Preact](https://preactjs.com/)
 * [React Router v4](https://github.com/ReactTraining/react-router)
 * [Bootstrap](https://getbootstrap.com) (with [Bootswatch Lux theme](https://bootswatch.com/lux/))

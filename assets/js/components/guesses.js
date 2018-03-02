@@ -19,14 +19,19 @@ export default class Guesses extends Component {
       <ul class="list-group">
         {
           props.guesses.sort(this.guessSort).map(guess => {
+            const correct_guess = guess.value === props.correct;
+            const item_class = correct_guess ? "active" : "";
             return (
-              <li class="list-group-item bg-dark">
+              <li class={`list-group-item bg-dark ${item_class}`}>
                 <div class="row">
                   <div class="col">
                     { guess.user } { guess.user_score }
                   </div>
                   <div class="col">
-                    <kbd class="float-right">{ guess.value }</kbd>
+                    <span class="float-right">
+                      { correct_guess && "Winner! " }
+                      <kbd>{ guess.value }</kbd>
+                    </span>
                   </div>
                 </div>
               </li>

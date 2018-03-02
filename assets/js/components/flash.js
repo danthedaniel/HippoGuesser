@@ -1,8 +1,6 @@
 import { h, Component } from 'preact';
 
-function onlyUnique(value, index, self) {
-  return self.indexOf(value) === index;
-}
+const onlyUnique = (value, index, self) => (self.indexOf(value) === index);
 
 export default class Flash extends Component {
   constructor(props) {

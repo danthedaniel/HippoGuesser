@@ -12,6 +12,7 @@ export default class GuessView extends Component {
       guesses: [],
       can_submit: false,
       game_state: null,
+      correct: null,
       input: {
         guess: ""
       }
@@ -73,8 +74,12 @@ export default class GuessView extends Component {
     if (msg.winner) {
       this.props.flash.success(`${msg.winner} has guessed correctly with ${msg.correct}!`);
     }
+    if (msg.correct) {
+      newState.correct = msg.correct;
+    }
     if (msg.state === "in_progress") {
       this.getSubmitStatus();
+      newState.correct = null;
     }
     this.setState(newState);
   }
@@ -124,7 +129,7 @@ export default class GuessView extends Component {
                 { props.username && props.moderator && <Controls
                     state={state.game_state}
                     channel={this.channel} /> }
-                <Guesses guesses={state.guesses} />
+                <Guesses guesses={state.guesses} correct={state.correct} />
               </div>
             </div>
           </div>
