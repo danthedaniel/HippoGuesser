@@ -1,8 +1,13 @@
 #!/bin/bash
 # Deploy MTPO to production.
 
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+RESET='\033[0m'
+
 PORT=1337
 APP_PATH=/srv/app
+APP_URL=https://mtpo.teaearlgraycold.me/
 HOST=mtpo
 
 TAR_PATH=$(ls -1rt `find rel/mtpo -maxdepth 1 -type f` | tail -n 1)
@@ -17,3 +22,16 @@ ssh "$HOST" "cd $APP_PATH && rm -rf bin erts* lib releases var"
 ssh "$HOST" "cd $APP_PATH && tar -xvf prod*.tar.gz"
 ssh "$HOST" "cd $APP_PATH && rm prod*.tar.gz"
 ssh "$HOST" "cd $APP_PATH && PORT=$PORT bin/mtpo start"
+
+echo "Checking server status code..."
+# Give a little delay to allow the web server time to boot up
+sleep 3
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL")
+
+if [ "$STATUS" == "200" ]; then
+  echo -e "${GREEN}Ok: Web server is up${RESET}"
+elif [ "$STATUS" == "000" ]; then
+  >&2 echo -e "${RED}Error: Could not connect to the web server at $APP_URL${RESET}"
+else
+  >&2 echo -e "${RED}Error: Web server returned $STATUS code${RESET}"
+fi
