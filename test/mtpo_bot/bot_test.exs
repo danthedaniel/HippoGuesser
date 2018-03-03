@@ -14,4 +14,15 @@ defmodule MtpoBot.BotTest do
   test "check_time passes through valid inputs" do
     assert Bot.check_time("0:40.99") == "0:40.99"
   end
+
+  test "make_map can process an empty string" do
+    assert Bot.make_map("", ",", "/") == %{}
+  end
+
+  test "make_map can process badges" do
+    %{
+      "subscriber" => "0",
+      "moderator" => "1"
+    } = Bot.make_map("subscriber/0,moderator/1", ",", "/")
+  end
 end

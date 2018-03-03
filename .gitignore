@@ -4,6 +4,8 @@
 /deps
 /*.ez
 
+best
+
 # Generated on crash by the VM
 erl_crash.dump
 
@@ -29,3 +31,4 @@ npm-debug.log
 
 oauth_cred
 rel/mtpo/
+rel/archive/

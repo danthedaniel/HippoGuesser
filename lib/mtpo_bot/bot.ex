@@ -75,15 +75,13 @@ defmodule MtpoBot.Bot do
   def handle_info({:unrecognized, "@badges" <> tags, %IrcMessage{} = message}, config) do
     tag_map = make_map("@badges" <> tags, ";", "=")
 
-    if String.length(tag_map["@badges"]) > 1 do
-      badges = make_map(tag_map["@badges"], ",", "/")
-      message = parse_msg(message.args |> List.first)
+    badges = make_map(tag_map["@badges"], ",", "/")
+    message = parse_msg(message.args |> List.first)
 
-      try do
-        parse_command(message, badges, config)
-      rescue
-        e -> Logger.error "Error in command processing: #{inspect(e)}"
-      end
+    try do
+      parse_command(message, badges, config)
+    rescue
+      e -> Logger.error "Error in command processing: #{inspect(e)}"
     end
     {:noreply, config}
   end
@@ -121,7 +119,7 @@ defmodule MtpoBot.Bot do
 
   """
   def make_map(str, pair_sep, value_sep) do
-    String.split(str, pair_sep)
+    String.split(str, pair_sep, trim: true)
     |> Enum.map(fn(x) -> String.split(x, value_sep) |> List.to_tuple end)
     |> Map.new
   end
@@ -140,6 +138,7 @@ defmodule MtpoBot.Bot do
       "text" => text,
       "channel" => _
     } = msg
+    Logger.debug "Parsing for " <> nick
     # Set up user in database
     perm_level = perm_level_from_badges(badges)
     {:ok, user} = Users.create_or_get_user(%{name: String.downcase(nick)})
