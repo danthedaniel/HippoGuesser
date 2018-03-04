@@ -17,7 +17,7 @@ defmodule Mtpo.Users do
       select: %{name: u.name, count: count(g.user_id)},
       where: g.value == r.correct_value,
       group_by: u.name,
-      order_by: [desc: u.name],
+      order_by: [desc: :count],
       limit: 20
     Repo.all query
   end

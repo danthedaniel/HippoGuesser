@@ -43,5 +43,9 @@ defmodule Mtpo.UsersTest do
     test "mods can state change" do
       assert Users.can_state_change(user_fixture(%{perm_level: :mod}))
     end
+
+    test "leaderboard is empty to start" do
+        assert Users.leaderboard() == []
+    end
   end
 end
