@@ -4,15 +4,15 @@ defmodule MtpoBot.BotTest do
   alias MtpoBot.Bot
 
   test "check_time returns nil on malformed input" do
-    assert is_nil(Bot.check_time("foo"))
+    :error = Bot.check_time("foo")
   end
 
   test "check_time expands input values without minutes" do
-    assert Bot.check_time("40.99") == "0:40.99"
+    {:ok, "0:40.99"} = Bot.check_time("40.99")
   end
 
   test "check_time passes through valid inputs" do
-    assert Bot.check_time("0:40.99") == "0:40.99"
+    {:ok, "0:40.99"} = Bot.check_time("0:40.99")
   end
 
   test "make_map can process an empty string" do
@@ -22,7 +22,7 @@ defmodule MtpoBot.BotTest do
   test "make_map can process badges" do
     %{
       "subscriber" => "0",
-      "moderator" => "1"
+      "moderator"  => "1"
     } = Bot.make_map("subscriber/0,moderator/1", ",", "/")
   end
 end

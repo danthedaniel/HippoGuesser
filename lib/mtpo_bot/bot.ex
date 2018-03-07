@@ -86,11 +86,9 @@ defmodule MtpoBot.Bot do
     {:noreply, config}
   end
   def handle_info({:winner, round}, config) do
-    name = Rounds.winning_name(round)
-    alert = if is_nil(name) do
-      "No one guessed correctly :("
-    else
-      "@#{name} has guessed correctly with #{round.correct_value}! ConcernFroge"
+    alert = case Rounds.winning_name(round) do
+      nil  -> "No one guessed correctly :("
+      name -> "@#{name} has guessed correctly with #{round.correct_value}! PogChamp"
     end
     Logger.debug alert
     Client.msg config.client, :privmsg, config.channel, alert
@@ -128,17 +126,11 @@ defmodule MtpoBot.Bot do
   Convert a raw message into a hash with keys for nick, channel, and text
   """
   def parse_msg(msg) do
-    pattern = ~r/(?<nick>[^!]+)!.*?PRIVMSG #(?<channel>\S+) :(?<text>.*)/
+    pattern = ~r/(?<nick>[^!]+)!.*?PRIVMSG #\S+ :(?<text>.*)/
     Regex.named_captures(pattern, msg)
   end
 
-  def parse_command(msg, badges, config) do
-    %{
-      "nick" => nick,
-      "text" => text,
-      "channel" => _
-    } = msg
-    Logger.debug "Parsing for " <> nick
+  def parse_command(%{"nick" => nick, "text" => text}, badges, config) do
     # Set up user in database
     perm_level = perm_level_from_badges(badges)
     {:ok, user} = Users.create_or_get_user(%{name: String.downcase(nick)})
@@ -148,25 +140,83 @@ defmodule MtpoBot.Bot do
     command_pattern = ~r/^!(?<name>\S+)\s?(?<args>.*)/
     command = Regex.named_captures(command_pattern, text)
 
-    if not is_nil(command) do
-      Logger.info inspect(msg)
-      args = command["args"] |> String.split(" ")
-      case command["name"] do
-        "guess"  ->
-          if Enum.count(args) > 0 do
-            guess(user, args |> List.first)
-          end
-        "start"     -> state_change(user, "start", args)
-        "stop"      -> state_change(user, "stop", args)
-        "winner"    -> state_change(user, "winner", args)
-        "w"         -> state_change(user, "winner", args)
-        "hipposite" ->
-          url = "https://mtpo.teaearlgraycold.me/"
-          Client.msg config.client, :privmsg, config.channel, url
-        "gg"        ->
-          if Users.can_state_change(user) do
-            Rounds.close_all
-            Client.msg config.client, :privmsg, config.channel, "no re"
+    # First try to parse a raw timestamp guess
+    case check_time(text) do
+      {:ok, _} -> guess(user, text)
+      :error   -> dispatch_command(user, config, command)
+    end
+  end
+
+  @doc """
+  Given a command, execute the appropriate function.
+  """
+  def dispatch_command(_user, _config, nil), do: nil
+  def dispatch_command(user, config, %{"name" => name, "args" => args}) do
+    Logger.info name <> " " <> args
+    case {name, String.split(args, " ")} do
+      {"guess", [value]}    -> guess(user, value)
+      {"start", [""]}       -> state_change(user, "start")
+      {"stop", [""]}        -> state_change(user, "stop")
+      {"winner", [correct]} -> state_change(user, "winner", [correct])
+      {"w", [correct]}      -> state_change(user, "winner", [correct])
+      {"hipposite", [""]}   -> hipposite(config)
+      {"gg", [""]}          -> gg(user, config)
+      _                     -> nil
+    end
+  end
+
+  @doc """
+  Execute the hipposite command.
+  """
+  def hipposite(config) do
+    url = "https://mtpo.teaearlgraycold.me/"
+    Client.msg config.client, :privmsg, config.channel, url
+  end
+
+  @doc """
+  Execute the gg command.
+  """
+  def gg(user, config) do
+    if Users.can_state_change(user) do
+      Rounds.close_all
+      Client.msg config.client, :privmsg, config.channel, "no re"
+    end
+  end
+
+  @doc """
+  Execute the guess command.
+  """
+  def guess(user, value) do
+    with {:ok, time} <- check_time(value) do
+      Guesses.create_guess(%{
+        "round_id" => Rounds.current_round!.id,
+        "user_id"  => user.id,
+        "value"    => time
+      })
+    end
+  end
+
+  @doc """
+  Execute state change commands.
+  """
+  def state_change(user, state, args \\ []) do
+    Logger.debug state
+    state = case state do
+      "start"  -> :in_progress
+      "stop"   -> :completed
+      "winner" -> :closed
+    end
+
+    if Users.can_state_change(user) do
+      Logger.debug "foo"
+      round = Rounds.current_round!
+      case round.state do
+        :closed      -> Rounds.create_round
+        :in_progress -> Rounds.update_round(round, %{state: state})
+        :completed   ->
+          Logger.debug "bar"
+          with {:ok, correct} <- Enum.at(args, 0) |> check_time do
+            Rounds.update_round(round, %{state: state, correct_value: correct})
           end
       end
     end
@@ -182,70 +232,25 @@ defmodule MtpoBot.Bot do
   end
 
   @doc """
-  Execute the guess command.
-  """
-  def guess(user, value) do
-    time = check_time(value)
-    if not is_nil(time) do
-      # Enter the guess into the database
-      round = Rounds.current_round!
-      changeset = %{
-        "round_id" => round.id,
-        "user_id" => user.id,
-        "value" => time
-      }
-      Guesses.create_guess(changeset)
-    end
-  end
-
-  @doc """
-  Parse and validate a time-formatted string. Return nil if invalid.
+  Parse and validate a time-formatted string.
 
   ## Examples
 
       iex> check_time("0:40.99")
-      "0:40.99"
+      {:ok, "0:40.99"}
 
       iex> check_time("40.99")
-      "0:40.99"
+      {:ok, "0:40.99"}
 
       iex> check_time("foo")
-      nil
+      :error
   """
   def check_time(value) do
-    time_pattern = ~r/(?<minutes>\d+)?:?(?<seconds>\d\d.\d\d)/
-    time_captures = Regex.named_captures(time_pattern, value)
-
-    if not is_nil(time_captures) do
-      if String.length(time_captures["minutes"]) == 0 do
-        "0:" <> time_captures["seconds"]
-      else
-        time_captures["minutes"] <> ":" <> time_captures["seconds"]
-      end
-    end
-  end
-
-  @doc """
-  Execute state change commands.
-  """
-  def state_change(user, state, args) do
-    round = Rounds.current_round!
-    state = case state do
-      "start"  -> :in_progress
-      "stop"   -> :completed
-      "winner" -> :closed
-    end
-
-    if Users.can_state_change(user) do
-      case round.state do
-        :closed -> Rounds.create_round
-        :in_progress -> Rounds.update_round(round, %{state: state})
-        :completed ->
-          correct = Enum.at(args, 0) |> check_time
-          if not is_nil(correct) do
-            Rounds.update_round(round, %{state: state, correct_value: correct})
-          end
-      end
+    time_pattern = ~r/^(?<minutes>\d+)?:?(?<seconds>\d\d.\d\d)$/
+    case Regex.named_captures(time_pattern, value) do
+      %{"minutes" => "", "seconds" => sec}  -> {:ok, "0:" <> sec}
+      %{"minutes" => min, "seconds" => sec} -> {:ok, min <> ":" <> sec}
+      nil -> :error
     end
   end
 end
