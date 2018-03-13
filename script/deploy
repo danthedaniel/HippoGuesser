@@ -21,7 +21,7 @@ ssh "$HOST" "$APP_PATH/bin/mtpo stop"
 ssh "$HOST" "cd $APP_PATH && rm -rf bin erts* lib releases var"
 ssh "$HOST" "cd $APP_PATH && tar -xvf prod*.tar.gz"
 ssh "$HOST" "cd $APP_PATH && rm prod*.tar.gz"
-ssh "$HOST" "cd $APP_PATH && PORT=$PORT bin/mtpo start"
+ssh "$HOST" "cd $APP_PATH && bin/mtpo migrate && PORT=$PORT bin/mtpo start"
 
 echo "Checking server status code..."
 # Give a little delay to allow the web server time to boot up
