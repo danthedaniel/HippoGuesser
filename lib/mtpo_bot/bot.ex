@@ -25,6 +25,7 @@ defmodule MtpoBot.Bot do
   alias ExIrc.Client
   alias IrcMessage
   alias Mtpo.{Users, Guesses, Rounds}
+  alias MtpoWeb.RoomChannel
 
   def start_link(%{:nick => nick} = params) when is_map(params) do
     config = Config.from_params(params)
@@ -177,8 +178,10 @@ defmodule MtpoBot.Bot do
   Execute the gg command.
   """
   def gg(user, config) do
+    round = Rounds.current_round!
     if Users.can_state_change(user) do
       Rounds.close_all
+      RoomChannel.broadcast_state(round)
       Client.msg config.client, :privmsg, config.channel, "no re"
     end
   end
