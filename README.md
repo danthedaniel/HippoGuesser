@@ -21,7 +21,7 @@ to defeat King Hippo in a speedrun.
 ## Twitch Chat commands
 
 ### Users
-* `!guess 0:00.00` - Enter a guess for the current round.
+* `!guess 0:00.00` or `0:00.00` - Enter a guess for the current round.
 
 ### Moderators / Broadcaster
 * `!start` - Start a new round
