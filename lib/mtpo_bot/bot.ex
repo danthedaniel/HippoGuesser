@@ -74,9 +74,10 @@ defmodule MtpoBot.Bot do
   end
   # Twitch chat event handler
   def handle_info({:unrecognized, "@badges" <> tags, %IrcMessage{} = message}, config) do
-    tag_map = make_map("@badges" <> tags, ";", "=")
-
-    badges = make_map(tag_map["@badges"], ",", "/")
+    badges = "@badges" <> tags
+    |> make_map(";", "=")
+    |> Map.get("@badges")
+    |> make_map(",", "/")
     message = parse_msg(message.args |> List.first)
 
     try do
