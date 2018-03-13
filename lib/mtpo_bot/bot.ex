@@ -117,6 +117,9 @@ defmodule MtpoBot.Bot do
       iex> make_map("a:b;c:d", ";", ":")
       %{"a" => "b", "c" => "d"}
 
+      iex> make_map("", ";", ":")
+      %{}
+
   """
   def make_map(str, pair_sep, value_sep) do
     String.split(str, pair_sep, trim: true)
