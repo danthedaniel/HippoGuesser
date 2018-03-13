@@ -200,7 +200,6 @@ defmodule MtpoBot.Bot do
   Execute state change commands.
   """
   def state_change(user, state, args \\ []) do
-    Logger.debug state
     state = case state do
       "start"  -> :in_progress
       "stop"   -> :completed
@@ -208,13 +207,11 @@ defmodule MtpoBot.Bot do
     end
 
     if Users.can_state_change(user) do
-      Logger.debug "foo"
       round = Rounds.current_round!
       case round.state do
         :closed      -> Rounds.create_round
         :in_progress -> Rounds.update_round(round, %{state: state})
         :completed   ->
-          Logger.debug "bar"
           with {:ok, correct} <- Enum.at(args, 0) |> check_time do
             Rounds.update_round(round, %{state: state, correct_value: correct})
           end
