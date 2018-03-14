@@ -1,24 +1,35 @@
 import { h, Component } from 'preact';
 import { Link } from 'react-router-dom';
 
-export default class NavBar extends Component {
+interface NavOption {
+  label: string,
+  path: string
+}
+
+interface NavBarProps {
+  username: string
+}
+
+interface NavBarState {
+  collapse: boolean
+}
+
+const options: NavOption[] = [
+  {label: "Guess!", path: "/"},
+  {label: "Leaderboards", path: "/leaderboards/"}
+]
+
+export default class NavBar extends Component<NavBarProps, NavBarState> {
   constructor(props) {
     super(props);
 
     this.state = {
       collapse: true
     };
-
-    this.options = [
-      {label: "Guess!", path: "/"},
-      {label: "Leaderboards", path: "/leaderboards/"}
-    ]
   }
 
   toggleCollapse() {
-    let newState = Object.assign({}, this.state);
-    newState.collapse = !newState.collapse;
-    this.setState(newState);
+    this.setState({collapse: !this.state.collapse});
   }
 
   logInButton() {
@@ -42,7 +53,7 @@ export default class NavBar extends Component {
     }
   }
 
-  render(props, state) {
+  render(props: NavBarProps, state: NavBarState) {
     const collapse = state.collapse ? "collapse" : "";
     return (
       <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -57,7 +68,7 @@ export default class NavBar extends Component {
         <div class={`${collapse} navbar-collapse`} id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto">
             {
-              this.options.map(item => {
+              options.map(item => {
                 const is_current = item.path === document.location.pathname;
                 const item_class = is_current ? "active" : "";
                 return (

@@ -1,26 +1,36 @@
 import { h, Component } from 'preact';
+import Flash from './flash';
 
-export default class Guesser extends Component {
+const invalid_message = "Time is invalid - must be formatted as 0:00.00";
+
+interface GuesserProps {
+  submit: () => any,
+  update: (value: string) => any,
+  value: string,
+  flash: Flash,
+  disabled: boolean
+}
+
+export default class Guesser extends Component<GuesserProps, {}> {
   constructor(props) {
     super(props);
-    this.invalid_message = "Time is invalid - must be formatted as 0:00.00";
   }
 
-  handleGuessKeyDown(event) {
+  handleGuessKeyDown(event: KeyboardEvent) {
     if (event.key === "Enter") {
       if (/^\d+:\d\d.\d\d$/.test(this.props.value)) {
         this.props.submit();
       } else {
-        this.props.flash.danger(this.invalid_message);
+        this.props.flash.danger(invalid_message);
       }
     }
   }
 
-  handleSubmitClick(event) {
+  handleSubmitClick(event: MouseEvent) {
     if (/^\d+:\d\d.\d\d$/.test(this.props.value)) {
       this.props.submit();
     } else {
-      this.props.flash.danger(this.invalid_message);
+      this.props.flash.danger(invalid_message);
     }
   }
 
@@ -33,7 +43,7 @@ export default class Guesser extends Component {
     }
   }
 
-  render(props, state) {
+  render(props: GuesserProps, state: {}) {
     return (
       <div class="input-group mb-3">
         <div class="input-group-prepend">

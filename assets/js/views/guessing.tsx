@@ -1,11 +1,52 @@
 import { h, Component } from 'preact';
-import TwitchVideoEmbed from '../components/twitch/embed.js';
-import Guesses from '../components/guesses.js';
-import Guesser from '../components/guesser.js';
-import Controls from '../components/controls.js';
-import {Socket} from 'phoenix';
+import TwitchVideoEmbed from '../components/twitch/embed';
+import Flash from '../components/flash';
+import Guesses, { Guess } from '../components/guesses';
+import Guesser from '../components/guesser';
+import Controls from '../components/controls';
+import { Socket } from 'phoenix';
 
-export default class GuessView extends Component {
+declare var fetch: (url: string, options: any) => Promise<any>;
+
+interface SocketMsg {
+  guesses: Guess[],
+  state: "in_progress" | "completed" | "closed",
+  winner: string,
+  correct: string
+}
+
+interface Channel {
+  join: () => any,
+  leave: () => any,
+  on: (event: string, callback: (frame: Guess | SocketMsg) => any) => undefined
+}
+
+interface Socket {
+  connect: () => undefined,
+  disconnect: () => undefined,
+  channel: (channel: string) => Channel
+}
+
+interface GuessProps {
+  flash: Flash,
+  username: string,
+  moderator: boolean
+}
+
+interface GuessState {
+  guesses: Guess[],
+  can_submit: boolean,
+  game_state: null | "in_progress" | "completed" | "closed",
+  correct: null | string,
+  input: {
+    guess: string
+  }
+}
+
+export default class GuessView extends Component<GuessProps, GuessState> {
+  channel: Channel;
+  socket: Socket;
+
   constructor(props) {
     super(props);
     this.state = {
@@ -55,17 +96,13 @@ export default class GuessView extends Component {
     this.channel.on("guess", this.gameGuess.bind(this));
   }
 
-  showWinner(msg) {
-    this.props.flash.success(msg.text);
-  }
-
-  gameGuess(guess) {
+  gameGuess(guess: Guess) {
     let newState = Object.assign({}, this.state);
     newState.guesses.push(guess);
     this.setState(newState);
   }
 
-  gameState(msg) {
+  gameState(msg: SocketMsg) {
     let newState = Object.assign({}, this.state);
     newState.game_state = msg.state;
     if (msg.guesses) {
@@ -106,7 +143,7 @@ export default class GuessView extends Component {
     this.setState(newState);
   }
 
-  render(props, state) {
+  render(props: GuessProps, state: GuessState) {
     return (
       <div>
         <div class="row">
@@ -127,8 +164,7 @@ export default class GuessView extends Component {
                   flash={props.flash}
                   disabled={!this.state.can_submit} /> }
                 { props.username && props.moderator && <Controls
-                    state={state.game_state}
-                    channel={this.channel} /> }
+                    state={state.game_state} /> }
                 <Guesses guesses={state.guesses} correct={state.correct} />
               </div>
             </div>

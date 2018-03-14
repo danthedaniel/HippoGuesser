@@ -1,19 +1,27 @@
-import { h, Component, createElement } from 'preact';
+import { h, Component } from 'preact';
 import { Route, Switch } from 'react-router-dom';
-import Navbar from '../components/navbar.js';
-import Flash from '../components/flash.js';
+import Navbar from '../components/navbar';
+import Flash from '../components/flash';
 
-import GuessView from './guessing.js';
+import GuessView from './guessing';
 import LeaderboardView from './leaderboards';
-import NotFoundView from './not_found.js';
+import NotFoundView from './not_found';
 
-const cookies = document
+interface Cookies { [key: string]: string }
+
+const cookies: Cookies = document
   .cookie
   .split("; ")
   .map(cookie => cookie.split("="))
   .reduce((acc, x) => Object.assign(acc, {[x[0]]: x[1]}), {});
 
-export default class Layout extends Component {
+interface LayoutState {
+  username: string,
+  moderator: boolean,
+  flash: null | Flash
+}
+
+export default class Layout extends Component<{}, LayoutState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -23,15 +31,13 @@ export default class Layout extends Component {
     };
   }
 
-  setFlash(ref) {
+  setFlash(ref: Flash) {
     if (!this.state.flash) {
-      let newState = Object.assign({}, this.state);
-      newState.flash = ref;
-      this.setState(newState);
+      this.setState({flash: ref});
     }
   }
 
-  render(props, state) {
+  render(props: {}, state: LayoutState) {
     return (
       <div class="container">
         <Flash ref={this.setFlash.bind(this)} />

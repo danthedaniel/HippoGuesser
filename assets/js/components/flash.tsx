@@ -1,8 +1,19 @@
 import { h, Component } from 'preact';
 
-const onlyUnique = (value, index, self) => (self.indexOf(value) === index);
+const onlyUnique = (value: any, index: number, self: any[]) => {
+  return self.indexOf(value) === index;
+}
 
-export default class Flash extends Component {
+interface FlashMsg {
+  classes: string,
+  text: string
+}
+
+interface FlashState {
+  flashes: FlashMsg[]
+}
+
+export default class Flash extends Component<{}, FlashState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -10,35 +21,36 @@ export default class Flash extends Component {
     };
   }
 
-  success(text) {
+  success(text: string) {
     this.addFlash({classes: 'alert-success', text: text});
   }
 
-  info(text) {
+  info(text: string) {
     this.addFlash({classes: 'alert-info', text: text});
   }
 
-  danger(text) {
+  danger(text: string) {
     this.addFlash({classes: 'alert-danger', text: text});
   }
 
-  addFlash(flash) {
-    let newState = Object.assign({}, this.state);
-    newState.flashes = newState.flashes
+  addFlash(flash: FlashMsg) {
+    let flashes = this.state.flashes
       .concat([flash])
       .filter(onlyUnique);
     setTimeout(this.removeFlash.bind(this, flash), 8000);
-    this.setState(newState);
+    this.setState({flashes});
   }
 
-  removeFlash(flash) {
-    let newState = Object.assign({}, this.state);
-    var index = newState.flashes.indexOf(flash);
-    if (index !== -1) newState.flashes.splice(index, 1);
-    this.setState(newState);
+  removeFlash(flash: FlashMsg) {
+    let index = this.state.flashes.indexOf(flash);
+    if (index !== -1) {
+      let flashes = Object.assign({}, this.state).flashes;
+      flashes.splice(index, 1);
+      this.setState({flashes});
+    }
   }
 
-  render(props, state) {
+  render(props: {}, state: FlashState) {
     return (
       <div class="alert-container">
         {

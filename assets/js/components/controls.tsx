@@ -1,11 +1,17 @@
 import { h, Component } from 'preact';
 
-export default class Controls extends Component {
+declare var fetch: (url: string, options: any) => Promise<any>;
+
+interface ControlsProps {
+  state: null | "in_progress" | "completed" | "closed"
+}
+
+export default class Controls extends Component<ControlsProps, {}> {
   constructor(props) {
     super(props);
   }
 
-  sendMessage(type, correct_value) {
+  sendMessage(type: string, correct_value: undefined | string) {
     let url = `/api/rounds/current/change/${type}`;
     if (correct_value) {
       url += `?correct=${correct_value}`;
@@ -19,7 +25,7 @@ export default class Controls extends Component {
       .then(response => console.log("Success:", response));
   }
 
-  render(props, state) {
+  render(props: ControlsProps, state: {}) {
     return (
       <div class="btn-group" role="group" aria-label="Moderator Controls">
         <button

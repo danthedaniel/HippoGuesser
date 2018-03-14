@@ -182,10 +182,9 @@ defmodule MtpoBot.Bot do
   Execute the gg command.
   """
   def gg(user, config) do
-    round = Rounds.current_round!
     if Users.can_state_change(user) do
       Rounds.close_all
-      RoomChannel.broadcast_state(round)
+      RoomChannel.broadcast_state(Rounds.current_round!)
       Client.msg config.client, :privmsg, config.channel, "no re"
     end
   end
@@ -206,8 +205,8 @@ defmodule MtpoBot.Bot do
   @doc """
   Execute state change commands.
   """
-  def state_change(user, state, args \\ []) do
-    state = case state do
+  def state_change(user, command, args \\ []) do
+    state = case command do
       "start"  -> :in_progress
       "stop"   -> :completed
       "winner" -> :closed

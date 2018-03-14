@@ -17,6 +17,7 @@ to defeat King Hippo in a speedrun.
 * [React Router v4](https://github.com/ReactTraining/react-router)
 * [Bootstrap](https://getbootstrap.com) (with [Bootswatch Lux theme](https://bootswatch.com/lux/))
 * [Phoenix Framework](https://phoenixframework.org)
+* [TypeScript](https://www.typescriptlang.org)
 
 ## Twitch Chat commands
 

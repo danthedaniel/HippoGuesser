@@ -1,6 +1,17 @@
 import { h, Component } from 'preact';
 
-export default class LeaderboardView extends Component {
+declare var fetch: (url: string, options: any) => Promise<any>;
+
+interface BoardEntry {
+  name: string,
+  count: number
+}
+
+interface LeaderboardState {
+  leaderboard: BoardEntry[]
+}
+
+export default class LeaderboardView extends Component<{}, LeaderboardState> {
   constructor(props) {
     super(props);
 
@@ -22,13 +33,11 @@ export default class LeaderboardView extends Component {
       .catch(error => console.error("Error: ", error))
       .then(response => response.json())
       .then(response => {
-        let newState = Object.assign({}, this.state);
-        newState.leaderboard = response;
-        this.setState(newState);
+        this.setState({leaderboard: response});
       });
   }
 
-  render(props, state) {
+  render(props: {}, state: LeaderboardState) {
     return (
       <div class="row">
         <div class="col">

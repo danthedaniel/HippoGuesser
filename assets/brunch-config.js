@@ -29,13 +29,9 @@ exports.config = {
 
   // Configure your plugins
   plugins: {
-    babel: {
-      // Do not use ES6 compiler in vendor code
-      ignore: [/vendor/],
-      presets: ["es2015"],
-      plugins: [
-        ["transform-react-jsx", {"pragma": "h"}]
-      ]
+    brunchTypescript: {
+      removeComments: true,
+      lib: undefined
     }
   },
 
@@ -48,8 +44,8 @@ exports.config = {
   npm: {
     enabled: true,
     aliases: {
-      'react': 'preact-compat',
-      'react-dom': 'preact-compat'
+      react: "preact-compat",
+      "react-dom": "preact-compat"
     }
   }
 };

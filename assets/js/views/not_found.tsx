@@ -1,11 +1,11 @@
 import { h, Component } from 'preact';
 
-export default class NotFoundView extends Component {
+export default class NotFoundView extends Component<{}, {}> {
   constructor(props) {
     super(props);
   }
 
-  render(props, state) {
+  render(props: {}, state, {}) {
     return (
       <div class="row">
         <div class="col">
