@@ -4,8 +4,8 @@ import Flash from './flash';
 const invalid_message = "Time is invalid - must be formatted as 0:00.00";
 
 interface GuesserProps {
-  submit: () => any,
-  update: (value: string) => any,
+  submit: () => void,
+  update: (value: string) => void,
   value: string,
   flash: Flash,
   disabled: boolean

@@ -1,9 +1,11 @@
 {
+  "compileOnSave": false,
   "compilerOptions": {
-    "sourceMap": true,
     "target": "es5",
-    "lib": ["es2015", "dom"],
+    "moduleResolution": "node",
+    "sourceMap": true,
     "jsx": "react",
-    "jsxFactory": "h"
+    "jsxFactory": "h",
+    "lib": ["es2015", "dom"]
   }
 }

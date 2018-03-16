@@ -37,7 +37,11 @@ exports.config = {
 
   modules: {
     autoRequire: {
-      "js/app.js": ["js/app"]
+      "js/app.js": ["js/app.tsx"]
+    },
+    nameCleaner: path => {
+      // console.log(path);
+      return path;
     }
   },
 

@@ -9,17 +9,17 @@ import NotFoundView from './not_found';
 
 interface Cookies { [key: string]: string }
 
-const cookies: Cookies = document
-  .cookie
-  .split("; ")
-  .map(cookie => cookie.split("="))
-  .reduce((acc, x) => Object.assign(acc, {[x[0]]: x[1]}), {});
-
 interface LayoutState {
   username: string,
   moderator: boolean,
   flash: null | Flash
 }
+
+const cookies: Cookies = document
+  .cookie
+  .split("; ")
+  .map(cookie => cookie.split("="))
+  .reduce((acc, x) => Object.assign(acc, {[x[0]]: x[1]}), {});
 
 export default class Layout extends Component<{}, LayoutState> {
   constructor(props) {

@@ -137,7 +137,7 @@ export default class GuessView extends Component<GuessProps, GuessState> {
       });
   }
 
-  setInput(key, value) {
+  setInput(key: string, value: string) {
     let newState = Object.assign({}, this.state);
     newState.input[key] = value;
     this.setState(newState);

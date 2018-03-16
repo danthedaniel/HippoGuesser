@@ -23,6 +23,8 @@ to defeat King Hippo in a speedrun.
 
 ### Users
 * `!guess 0:00.00` or `0:00.00` - Enter a guess for the current round.
+* `!leaderboard` - Display the leaderboard
+* `!hipposite` - Display the URL for the hippo guesser site.
 
 ### Moderators / Broadcaster
 * `!start` - Start a new round
