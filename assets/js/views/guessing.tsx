@@ -17,13 +17,13 @@ interface SocketMsg {
 
 interface Channel {
   join: () => any,
-  leave: () => any,
-  on: (event: string, callback: (frame: Guess | SocketMsg) => any) => undefined
+  leave: () => void,
+  on: (event: string, callback: (frame: Guess | SocketMsg) => void) => void
 }
 
 interface Socket {
-  connect: () => undefined,
-  disconnect: () => undefined,
+  connect: () => void,
+  disconnect: () => void,
   channel: (channel: string) => Channel
 }
 
