@@ -159,14 +159,33 @@ defmodule MtpoBot.Bot do
   def dispatch_command(user, config, %{"name" => name, "args" => args}) do
     Logger.info name <> " " <> args
     case {name, String.split(args, " ")} do
-      {"guess", [value]}    -> guess(user, value)
-      {"start", [""]}       -> state_change(user, "start")
-      {"stop", [""]}        -> state_change(user, "stop")
-      {"winner", [correct]} -> state_change(user, "winner", [correct])
-      {"w", [correct]}      -> state_change(user, "winner", [correct])
-      {"hipposite", [""]}   -> hipposite(config)
-      {"gg", [""]}          -> gg(user, config)
-      _                     -> nil
+      {"guess", [value]}     -> guess(user, value)
+      {"start", [""]}        -> state_change(user, "start")
+      {"stop", [""]}         -> state_change(user, "stop")
+      {"winner", [correct]}  -> state_change(user, "winner", [correct])
+      {"w", [correct]}       -> state_change(user, "winner", [correct])
+      {"hipposite", [""]}    -> hipposite(config)
+      {"leaderboard", [""]}  -> leaderboard(config)
+      {"leaderboards", [""]} -> leaderboard(config)
+      {"gg", [""]}           -> gg(user, config)
+      _                      -> nil
+    end
+  end
+
+  @doc """
+  Execute the leaderboard command.
+  """
+  def leaderboard(config) do
+    msg = Users.leaderboard(3)
+    |> Stream.with_index
+    |> Enum.map(fn ({%{name: name, count: count}, i}) ->
+      Integer.to_string(i + 1) <> ". @" <> name <> " - " <> Integer.to_string(count)
+    end)
+    |> Enum.join(", ")
+
+    case msg do
+      "" -> Client.msg config.client, :privmsg, config.channel, "Nothing yet..."
+      msg -> Client.msg config.client, :privmsg, config.channel, msg
     end
   end
 

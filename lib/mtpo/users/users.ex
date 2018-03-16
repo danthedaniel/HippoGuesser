@@ -10,7 +10,7 @@ defmodule Mtpo.Users do
   alias Mtpo.Rounds
   alias Mtpo.Guesses.Guess
 
-  def leaderboard do
+  def leaderboard(count \\ 20) do
     query = from g in Guess,
       join: r in assoc(g, :round),
       join: u in assoc(g, :user),
@@ -18,7 +18,7 @@ defmodule Mtpo.Users do
       where: g.value == r.correct_value,
       group_by: u.name,
       order_by: [desc: :count],
-      limit: 20
+      limit: ^count
     Repo.all query
   end
 
