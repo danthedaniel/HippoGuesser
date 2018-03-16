@@ -20,7 +20,6 @@
     "typescript-brunch": "git://github.com/lee-dohm/typescript-brunch.git#9cfa1a0",
     "typescript": "^2.7.2",
     "uglify-js-brunch": "2.10.0",
-    "@types/react": "^16.0.4",
     "@types/react-dom": "^16.0.4"
   }
 }
