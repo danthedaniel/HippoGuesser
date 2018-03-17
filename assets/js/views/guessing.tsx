@@ -4,27 +4,17 @@ import Flash from '../components/flash';
 import Guesses, { Guess } from '../components/guesses';
 import Guesser from '../components/guesser';
 import Controls from '../components/controls';
-import { Socket } from 'phoenix';
+import { Socket, Channel } from 'phoenix';
 
 declare var fetch: (url: string, options: any) => Promise<any>;
 
-interface SocketMsg {
+type SocketMsg = Guess | StateMsg;
+
+interface StateMsg {
   guesses: Guess[],
   state: "in_progress" | "completed" | "closed",
   winner: string,
   correct: string
-}
-
-interface Channel {
-  join: () => any,
-  leave: () => void,
-  on: (event: string, callback: (frame: Guess | SocketMsg) => void) => void
-}
-
-interface Socket {
-  connect: () => void,
-  disconnect: () => void,
-  channel: (channel: string) => Channel
 }
 
 interface GuessProps {
@@ -44,7 +34,7 @@ interface GuessState {
 }
 
 export default class GuessView extends Component<GuessProps, GuessState> {
-  channel: Channel;
+  channel: Channel<SocketMsg>;
   socket: Socket;
 
   constructor(props) {
@@ -88,7 +78,7 @@ export default class GuessView extends Component<GuessProps, GuessState> {
     this.socket = new Socket("/socket");
     this.socket.connect();
 
-    this.channel = this.socket.channel("room:lobby");
+    this.channel = this.socket.channel<SocketMsg>("room:lobby");
     this.channel.join()
       .receive("ok", msg => this.gameState(msg))
       .receive("error", msg => this.props.flash.danger("Could not connect to guess channel."));
@@ -102,7 +92,7 @@ export default class GuessView extends Component<GuessProps, GuessState> {
     this.setState(newState);
   }
 
-  gameState(msg: SocketMsg) {
+  gameState(msg: StateMsg) {
     let newState = Object.assign({}, this.state);
     newState.game_state = msg.state;
     if (msg.guesses) {
