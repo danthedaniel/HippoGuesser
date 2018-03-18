@@ -16,6 +16,9 @@ const guessToSec = (guess: string): number => {
   return parseInt(parts[1]) * 60 + parseFloat(parts[2]);
 };
 
+/**
+ * Guess listing.
+ */
 export default class Guesses extends Component<GuessesProps, {}> {
   constructor(props) {
     super(props);

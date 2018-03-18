@@ -2,16 +2,30 @@ import { h, Component } from 'preact';
 
 declare var fetch: (url: string, options: any) => Promise<any>;
 
+/**
+ * The game state.
+ */
+type State = "in_progress" | "completed" | "closed";
+
 interface ControlsProps {
-  state: null | "in_progress" | "completed" | "closed"
+  state: null | State
 }
 
+/**
+ * Moderator/Admin controls.
+ */
 export default class Controls extends Component<ControlsProps, {}> {
   constructor(props) {
     super(props);
   }
 
-  sendMessage(type: string, correct_value: undefined | string) {
+  /**
+   * Send a state change to the server.
+   *
+   * @param type          State to update the round to.
+   * @param correct_value String formatted as "0:00.00"
+   */
+  sendMessage(type: State, correct_value?: string) {
     let url = `/api/rounds/current/change/${type}`;
     if (correct_value) {
       url += `?correct=${correct_value}`;

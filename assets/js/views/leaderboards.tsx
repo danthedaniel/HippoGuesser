@@ -2,8 +2,18 @@ import { h, Component } from 'preact';
 
 declare var fetch: (url: string, options: any) => Promise<any>;
 
+/**
+ * One item on the leaderboard.
+ */
 interface BoardEntry {
+  /**
+   * Name of the user.
+   */
   name: string,
+
+  /**
+   * Number of correct guesses.
+   */
   count: number
 }
 

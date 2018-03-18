@@ -21,6 +21,6 @@
     "typescript": "^2.7.2",
     "uglify-js-brunch": "2.10.0",
     "@types/node": "^9.4.7",
-    "phoenix-typings": "git://github.com/teaearlgraycold/phoenix-typings.git#f21725f"
+    "phoenix-typings": "git://github.com/teaearlgraycold/phoenix-typings.git#7902809"
   }
 }

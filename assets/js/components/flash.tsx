@@ -1,5 +1,8 @@
 import { h, Component } from 'preact';
 
+/**
+ * Filter function. Remove any values that appear more than once.
+ */
 const onlyUnique = (value: any, index: number, self: any[]) => {
   return self.indexOf(value) === index;
 }
@@ -13,6 +16,9 @@ interface FlashState {
   flashes: FlashMsg[]
 }
 
+/**
+ * Alert box container.
+ */
 export default class Flash extends Component<{}, FlashState> {
   constructor(props) {
     super(props);
@@ -21,14 +27,29 @@ export default class Flash extends Component<{}, FlashState> {
     };
   }
 
+  /**
+   * Add a success flash.
+   *
+   * @param text Message to display in the flash.
+   */
   success(text: string) {
     this.addFlash({classes: 'alert-success', text: text});
   }
 
+  /**
+   * Add an info flash.
+   *
+   * @param text Message to display in the flash.
+   */
   info(text: string) {
     this.addFlash({classes: 'alert-info', text: text});
   }
 
+  /**
+   * Add a danger flash.
+   *
+   * @param text Message to display in the flash.
+   */
   danger(text: string) {
     this.addFlash({classes: 'alert-danger', text: text});
   }

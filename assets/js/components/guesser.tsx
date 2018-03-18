@@ -4,13 +4,27 @@ import Flash from './flash';
 const invalid_message = "Time is invalid - must be formatted as 0:00.00";
 
 interface GuesserProps {
+  /**
+   * Callback for submitting a guess.
+   */
   submit: () => void,
+
+  /**
+   * Callback for updating the input field.
+   */
   update: (value: string) => void,
+
+  /**
+   * The value for the input field.
+   */
   value: string,
   flash: Flash,
   disabled: boolean
 }
 
+/**
+ * Guessing controls.
+ */
 export default class Guesser extends Component<GuesserProps, {}> {
   constructor(props) {
     super(props);

@@ -8,13 +8,13 @@ import { Socket, Channel } from 'phoenix';
 
 declare var fetch: (url: string, options: any) => Promise<any>;
 
-type SocketMsg = Guess | StateMsg;
+type ChannelMsg = Guess | StateMsg;
 
 interface StateMsg {
-  guesses: Guess[],
   state: "in_progress" | "completed" | "closed",
-  winner: string,
-  correct: string
+  guesses?: Guess[],
+  winner?: string,
+  correct?: string
 }
 
 interface GuessProps {
@@ -34,8 +34,8 @@ interface GuessState {
 }
 
 export default class GuessView extends Component<GuessProps, GuessState> {
-  channel: Channel<SocketMsg>;
-  socket: Socket;
+  channel: Channel<{}, {}, ChannelMsg>;
+  socket: Socket<{}>;
 
   constructor(props) {
     super(props);
@@ -59,6 +59,9 @@ export default class GuessView extends Component<GuessProps, GuessState> {
     this.socket.disconnect();
   }
 
+  /**
+   * Update the view's state for whether the user is allowed to guess.
+   */
   getSubmitStatus() {
     fetch("/api/can_submit",
       {
@@ -78,20 +81,30 @@ export default class GuessView extends Component<GuessProps, GuessState> {
     this.socket = new Socket("/socket");
     this.socket.connect();
 
-    this.channel = this.socket.channel<SocketMsg>("room:lobby");
+    this.channel = this.socket.channel("room:lobby");
     this.channel.join()
-      .receive("ok", msg => this.gameState(msg))
-      .receive("error", msg => this.props.flash.danger("Could not connect to guess channel."));
+      .receive("ok", this.gameState.bind(this))
+      .receive("error", () => this.props.flash.danger("Could not connect to guess channel."));
     this.channel.on("state", this.gameState.bind(this));
     this.channel.on("guess", this.gameGuess.bind(this));
   }
 
+  /**
+   * Callback for game guess events.
+   *
+   * @param guess The websocket payload.
+   */
   gameGuess(guess: Guess) {
     let newState = Object.assign({}, this.state);
     newState.guesses.push(guess);
     this.setState(newState);
   }
 
+  /**
+   * Callback for game state events.
+   *
+   * @param msg The websocket payload.
+   */
   gameState(msg: StateMsg) {
     let newState = Object.assign({}, this.state);
     newState.game_state = msg.state;
@@ -127,6 +140,12 @@ export default class GuessView extends Component<GuessProps, GuessState> {
       });
   }
 
+  /**
+   * Generic input field update.
+   *
+   * @param key   The input field name.
+   * @param value The field's value.
+   */
   setInput(key: string, value: string) {
     let newState = Object.assign({}, this.state);
     newState.input[key] = value;

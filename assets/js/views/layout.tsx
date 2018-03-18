@@ -11,7 +11,15 @@ interface Cookies { [key: string]: string }
 
 interface LayoutState {
   username: string,
+
+  /**
+   * Whether the current user is a moderator or admin.
+   */
   moderator: boolean,
+
+  /**
+   * The alert container ref.
+   */
   flash: null | Flash
 }
 
@@ -26,7 +34,7 @@ export default class Layout extends Component<{}, LayoutState> {
     super(props);
     this.state = {
       username: cookies["username"],
-      moderator: cookies["role"] === "mod" || cookies["role"] === "admin",
+      moderator: ["mod", "admin"].indexOf(cookies["role"]) !== -1,
       flash: null
     };
   }
