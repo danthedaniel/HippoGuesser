@@ -33,8 +33,8 @@ export default class Layout extends Component<{}, LayoutState> {
   constructor(props) {
     super(props);
     this.state = {
-      username: cookies["username"],
-      moderator: ["mod", "admin"].indexOf(cookies["role"]) !== -1,
+      username: cookies.username,
+      moderator: ["mod", "admin"].indexOf(cookies.role) !== -1,
       flash: null
     };
   }

@@ -1,6 +1,5 @@
 import { h, Component } from 'preact';
-
-declare var fetch: (url: string, options: any) => Promise<any>;
+import { leaderboard } from '../api/Users';
 
 /**
  * One item on the leaderboard.
@@ -31,20 +30,7 @@ export default class LeaderboardView extends Component<{}, LeaderboardState> {
   }
 
   componentDidMount() {
-    this.getLeaderboard();
-  }
-
-  getLeaderboard() {
-    fetch("/api/leaderboard",
-      {
-        method: "GET",
-        credentials: "same-origin"
-      })
-      .catch(error => console.error("Error: ", error))
-      .then(response => response.json())
-      .then(response => {
-        this.setState({leaderboard: response});
-      });
+    leaderboard().then(response => this.setState({leaderboard: response.data}))
   }
 
   render(props: {}, state: LeaderboardState) {

@@ -8,8 +8,22 @@ const onlyUnique = (value: any, index: number, self: any[]) => {
 }
 
 interface FlashMsg {
-  classes: string,
+  /**
+   * Additional styles applied to the alert box.
+   */
+  classes?: string,
+
+  /**
+   * Message to display.
+   */
   text: string
+}
+
+interface FlashProps {
+  /**
+   * Duration for alerts to be displayed (in ms).
+   */
+  timeout?: number
 }
 
 interface FlashState {
@@ -19,7 +33,11 @@ interface FlashState {
 /**
  * Alert box container.
  */
-export default class Flash extends Component<{}, FlashState> {
+export default class Flash extends Component<FlashProps, FlashState> {
+  defaultProps: FlashProps = {
+    timeout: 8000
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -58,7 +76,7 @@ export default class Flash extends Component<{}, FlashState> {
     let flashes = this.state.flashes
       .concat([flash])
       .filter(onlyUnique);
-    setTimeout(this.removeFlash.bind(this, flash), 8000);
+    setTimeout(this.removeFlash.bind(this, flash), this.props.timeout);
     this.setState({flashes});
   }
 
@@ -71,14 +89,14 @@ export default class Flash extends Component<{}, FlashState> {
     }
   }
 
-  render(props: {}, state: FlashState) {
+  render(props: FlashProps, state: FlashState) {
     return (
       <div class="alert-container">
         {
           state.flashes.map(flash => {
             return (
               <div
-                class={`alert alert-clickable alert-animate ${flash.classes}`}
+                class={`alert alert-clickable alert-animate ${flash.classes || ""}`}
                 role="alert"
                 onClick={() => this.removeFlash(flash)}>
                 { flash.text }

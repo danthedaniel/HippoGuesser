@@ -1,0 +1,3 @@
+#!/bin/bash
+
+openapi -s openapi.json -l ts -o js/api

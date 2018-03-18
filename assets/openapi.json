@@ -1,0 +1,341 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "A Hippo guess collector.",
+    "version": "1.0.0",
+    "title": "Hippo Guesser",
+    "license": {
+      "name": "MIT",
+      "url": "https://github.com/teaearlgraycold/HippoGuesser/blob/master/LICENSE"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://mtpo.teaearlgraycold.me/api",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:4000/api",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/leaderboard": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get user leaderboards",
+        "operationId": "leaderboard",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BoardEntry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rounds/{id}": {
+      "get": {
+        "tags": [
+          "Rounds"
+        ],
+        "summary": "Get a round",
+        "operationId": "get_round",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Round"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rounds/current": {
+      "get": {
+        "tags": [
+          "Rounds"
+        ],
+        "summary": "Get the current round",
+        "operationId": "current_round",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Round"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rounds/current/guess": {
+      "post": {
+        "tags": [
+          "Rounds"
+        ],
+        "summary": "Create a new guess.",
+        "operationId": "guess",
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "value",
+            "description": "A guess formatted as 0:00.00",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Round"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Round"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rounds/current/change/{state}": {
+      "patch": {
+        "tags": [
+          "Rounds"
+        ],
+        "summary": "Update the current round's state.",
+        "operationId": "state_change",
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "state",
+            "description": "The state to change to.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "closed",
+                "in_progress",
+                "completed"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "correct",
+            "description": "The correct guess value formatted as 0:00.00",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Round"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Round"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No permission to perform this action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Round"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get a user",
+        "operationId": "get_user",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "The id of the user.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/can_submit": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get whether the current user can submit a guess this round",
+        "operationId": "can_submit",
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "can_submit": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "_mtpo_key"
+      }
+    },
+    "schemas": {
+      "BoardEntry": {
+        "type": "object",
+        "required": [
+          "name",
+          "count"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "Round": {
+        "type": "object",
+        "required": [
+          "id",
+          "state"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "in_progress",
+              "completed",
+              "closed"
+            ]
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "wins"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "wins": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    }
+  }
+}

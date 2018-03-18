@@ -1,6 +1,5 @@
 import { h, Component } from 'preact';
-
-declare var fetch: (url: string, options: any) => Promise<any>;
+import { state_change } from '../api/Rounds';
 
 /**
  * The game state.
@@ -22,21 +21,11 @@ export default class Controls extends Component<ControlsProps, {}> {
   /**
    * Send a state change to the server.
    *
-   * @param type          State to update the round to.
-   * @param correct_value String formatted as "0:00.00"
+   * @param type    State to update the round to.
+   * @param correct String formatted as "0:00.00"
    */
-  sendMessage(type: State, correct_value?: string) {
-    let url = `/api/rounds/current/change/${type}`;
-    if (correct_value) {
-      url += `?correct=${correct_value}`;
-    }
-    fetch(url,
-      {
-        method: "PATCH",
-        credentials: "same-origin"
-      })
-      .catch(error => console.error("Error:", error))
-      .then(response => console.log("Success:", response));
+  sendMessage(type: State, correct?: string) {
+    state_change(type, correct ? {correct} : null)
   }
 
   render(props: ControlsProps, state: {}) {
@@ -45,14 +34,14 @@ export default class Controls extends Component<ControlsProps, {}> {
         <button
           type="button"
           class="btn btn-success"
-          onClick={this.sendMessage.bind(this, "in_progress")}
+          onClick={this.sendMessage.bind(this, "in_progress", null)}
           disabled={props.state !== "closed"}>
           Start
         </button>
         <button
           type="button"
           class="btn btn-danger"
-          onClick={this.sendMessage.bind(this, "completed")}
+          onClick={this.sendMessage.bind(this, "completed", null)}
           disabled={props.state !== "in_progress"}>
           Stop
         </button>

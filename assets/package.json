@@ -15,12 +15,14 @@
     "twitch-embed": "^1.1.4"
   },
   "devDependencies": {
+    "@types/isomorphic-fetch": "0.0.34",
+    "@types/node": "^9.4.7",
     "brunch": "git://github.com/teaearlgraycold/brunch.git#ac64093",
     "clean-css-brunch": "2.10.0",
-    "typescript-brunch": "git://github.com/lee-dohm/typescript-brunch.git#9cfa1a0",
+    "openapi-client": "^1.0.1",
+    "phoenix-typings": "git://github.com/teaearlgraycold/phoenix-typings.git#7902809",
     "typescript": "^2.7.2",
-    "uglify-js-brunch": "2.10.0",
-    "@types/node": "^9.4.7",
-    "phoenix-typings": "git://github.com/teaearlgraycold/phoenix-typings.git#7902809"
+    "typescript-brunch": "git://github.com/lee-dohm/typescript-brunch.git#9cfa1a0",
+    "uglify-js-brunch": "2.10.0"
   }
 }

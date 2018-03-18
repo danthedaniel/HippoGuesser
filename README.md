@@ -18,6 +18,7 @@ to defeat King Hippo in a speedrun.
 * [Bootstrap](https://getbootstrap.com) (with [Bootswatch Lux theme](https://bootswatch.com/lux/))
 * [Phoenix Framework](https://phoenixframework.org)
 * [TypeScript](https://www.typescriptlang.org)
+* [OpenAPI](https://swagger.io/specification/)
 
 ## Twitch Chat commands
 

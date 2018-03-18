@@ -5,13 +5,14 @@ import Guesses, { Guess } from '../components/guesses';
 import Guesser from '../components/guesser';
 import Controls from '../components/controls';
 import { Socket, Channel } from 'phoenix';
+import { guess } from '../api/Rounds';
+import { can_submit } from '../api/Users';
 
-declare var fetch: (url: string, options: any) => Promise<any>;
-
+type State = "in_progress" | "completed" | "closed";
 type ChannelMsg = Guess | StateMsg;
 
 interface StateMsg {
-  state: "in_progress" | "completed" | "closed",
+  state: State,
   guesses?: Guess[],
   winner?: string,
   correct?: string
@@ -26,7 +27,7 @@ interface GuessProps {
 interface GuessState {
   guesses: Guess[],
   can_submit: boolean,
-  game_state: null | "in_progress" | "completed" | "closed",
+  game_state: null | State,
   correct: null | string,
   input: {
     guess: string
@@ -63,18 +64,8 @@ export default class GuessView extends Component<GuessProps, GuessState> {
    * Update the view's state for whether the user is allowed to guess.
    */
   getSubmitStatus() {
-    fetch("/api/can_submit",
-      {
-        method: "GET",
-        credentials: "same-origin"
-      })
-      .catch(error => console.error("Error:", error))
-      .then(response => response.json())
-      .then(response => {
-        let newState = Object.assign({}, this.state);
-        newState.can_submit = response.can_submit;
-        this.setState(newState);
-      });
+    can_submit()
+      .then(response => this.setState({can_submit: response.data.can_submit}));
   }
 
   connectSocket() {
@@ -125,19 +116,11 @@ export default class GuessView extends Component<GuessProps, GuessState> {
   }
 
   submitGuess() {
-    const value = this.state.input.guess;
-    fetch(`/api/rounds/current/guess?value=${value}`,
-      {
-        method: "POST",
-        credentials: "same-origin"
-      })
-      .catch(error => console.error("Error:", error))
-      .then(response => {
-        let newState = Object.assign({}, this.state);
-        newState.input.guess = "";
-        newState.can_submit = false;
-        this.setState(newState);
-      });
+    guess(this.state.input.guess).then(response => {
+      if (!response.error) {
+        this.setInput("guess", "");
+      }
+    });
   }
 
   /**
