@@ -20,8 +20,6 @@ defmodule MtpoWeb.Router do
     get "/leaderboard", UserController, :leaderboard
     get "/can_submit", UserController, :can_submit
     get "/users/:id", UserController, :show
-    patch "/users/:id/mod", UserController, :make_mod
-    patch "/users/:id/admin", UserController, :make_admin
 
     get "/rounds/:id", RoundController, :show
     get "/rounds/current", RoundController, :current

@@ -23,24 +23,4 @@ defmodule MtpoWeb.UserController do
   def leaderboard(conn, _params) do
     render(conn, "leaderboard.json", %{})
   end
-
-  def make_mod(conn, %{"id" => id}) do
-    if Session.is_admin(conn) do
-      user = Users.get_user!(id)
-      Users.update_user(user, %{perm_level: :mod})
-      show(conn, id, :ok)
-    else
-      show(conn, id, :forbidden)
-    end
-  end
-
-  def make_admin(conn, %{"id" => id}) do
-    if Session.is_admin(conn) do
-      user = Users.get_user!(id)
-      Users.update_user(user, %{perm_level: :admin})
-      show(conn, id, :ok)
-    else
-      show(conn, id, :forbidden)
-    end
-  end
 end

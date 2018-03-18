@@ -44,7 +44,7 @@ defmodule MtpoWeb.RoundController do
     if Session.is_mod(conn) do
       case Rounds.update_round(round, %{"state" => "completed"}) do
         {:ok, _} -> show(conn, :ok, round)
-        {:error, _} -> show(conn, 500, round)
+        {:error, _} -> show(conn, 400, round)
       end
     else
       show(conn, :forbidden, round)
