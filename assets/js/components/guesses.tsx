@@ -1,13 +1,8 @@
 import { h, Component } from 'preact';
-
-export interface Guess {
-  user: string,
-  user_score: number,
-  value: string
-}
+import api from '../api';
 
 interface GuessesProps {
-  guesses: Guess[],
+  guesses: api.Guess[],
   correct: string
 }
 
@@ -24,7 +19,7 @@ export default class Guesses extends Component<GuessesProps, {}> {
     super(props);
   }
 
-  guessSort(a: Guess, b: Guess) {
+  guessSort(a: api.Guess, b: api.Guess) {
     return guessToSec(a.value) - guessToSec(b.value);
   }
 

@@ -1,18 +1,19 @@
 import { h, Component } from 'preact';
-import TwitchVideoEmbed from '../components/twitch/embed';
-import Flash from '../components/flash';
-import Guesses, { Guess } from '../components/guesses';
-import Guesser from '../components/guesser';
-import Controls from '../components/controls';
 import { Socket, Channel } from 'phoenix';
 
-declare var fetch: (url: string, options: any) => Promise<any>;
+import TwitchVideoEmbed from '../components/twitch/embed';
+import Flash from '../components/flash';
+import Guesses from '../components/guesses';
+import Guesser from '../components/guesser';
+import Controls from '../components/controls';
 
-type ChannelMsg = Guess | StateMsg;
+import api from '../api';
+
+type ChannelMsg = api.Guess | StateMsg;
 
 interface StateMsg {
-  state: "in_progress" | "completed" | "closed",
-  guesses?: Guess[],
+  state: api.State,
+  guesses?: api.Guess[],
   winner?: string,
   correct?: string
 }
@@ -24,9 +25,9 @@ interface GuessProps {
 }
 
 interface GuessState {
-  guesses: Guess[],
+  guesses: api.Guess[],
   can_submit: boolean,
-  game_state: null | "in_progress" | "completed" | "closed",
+  game_state: null | api.State,
   correct: null | string,
   input: {
     guess: string
@@ -63,18 +64,7 @@ export default class GuessView extends Component<GuessProps, GuessState> {
    * Update the view's state for whether the user is allowed to guess.
    */
   getSubmitStatus() {
-    fetch("/api/can_submit",
-      {
-        method: "GET",
-        credentials: "same-origin"
-      })
-      .catch(error => console.error("Error:", error))
-      .then(response => response.json())
-      .then(response => {
-        let newState = Object.assign({}, this.state);
-        newState.can_submit = response.can_submit;
-        this.setState(newState);
-      });
+    api.can_submit().then(response => this.setState(response))
   }
 
   connectSocket() {
@@ -94,7 +84,7 @@ export default class GuessView extends Component<GuessProps, GuessState> {
    *
    * @param guess The websocket payload.
    */
-  gameGuess(guess: Guess) {
+  gameGuess(guess: api.Guess) {
     let newState = Object.assign({}, this.state);
     newState.guesses.push(guess);
     this.setState(newState);
@@ -125,18 +115,12 @@ export default class GuessView extends Component<GuessProps, GuessState> {
   }
 
   submitGuess() {
-    const value = this.state.input.guess;
-    fetch(`/api/rounds/current/guess?value=${value}`,
-      {
-        method: "POST",
-        credentials: "same-origin"
-      })
-      .catch(error => console.error("Error:", error))
-      .then(response => {
-        let newState = Object.assign({}, this.state);
-        newState.input.guess = "";
-        newState.can_submit = false;
-        this.setState(newState);
+    api.guess(this.state.input.guess)
+      .then(() => {
+        this.setState({
+          input: {guess: ""},
+          can_submit: false
+        });
       });
   }
 
@@ -157,7 +141,6 @@ export default class GuessView extends Component<GuessProps, GuessState> {
       <div>
         <div class="row">
           <div class="col-xs-12 col-md-12 col-lg-8">
-            <TwitchVideoEmbed channel="summoningsalt" />
           </div>
           <div class="col-xs-12 col-md-12 col-lg-4">
             <div class="row">

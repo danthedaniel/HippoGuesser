@@ -1,24 +1,8 @@
 import { h, Component } from 'preact';
-
-declare var fetch: (url: string, options: any) => Promise<any>;
-
-/**
- * One item on the leaderboard.
- */
-interface BoardEntry {
-  /**
-   * Name of the user.
-   */
-  name: string,
-
-  /**
-   * Number of correct guesses.
-   */
-  count: number
-}
+import api from '../api';
 
 interface LeaderboardState {
-  leaderboard: BoardEntry[]
+  leaderboard: api.BoardEntry[]
 }
 
 export default class LeaderboardView extends Component<{}, LeaderboardState> {
@@ -31,20 +15,7 @@ export default class LeaderboardView extends Component<{}, LeaderboardState> {
   }
 
   componentDidMount() {
-    this.getLeaderboard();
-  }
-
-  getLeaderboard() {
-    fetch("/api/leaderboard",
-      {
-        method: "GET",
-        credentials: "same-origin"
-      })
-      .catch(error => console.error("Error: ", error))
-      .then(response => response.json())
-      .then(response => {
-        this.setState({leaderboard: response});
-      });
+    api.leaderboard().then(leaderboard => this.setState({leaderboard}));
   }
 
   render(props: {}, state: LeaderboardState) {

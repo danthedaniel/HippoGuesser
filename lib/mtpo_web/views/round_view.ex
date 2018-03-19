@@ -3,11 +3,11 @@ defmodule MtpoWeb.RoundView do
   alias MtpoWeb.RoundView
 
   def render("index.json", %{round: round}) do
-    %{data: render_many(round, RoundView, "round.json")}
+    render_many(round, RoundView, "round.json")
   end
 
   def render("show.json", %{round: round}) do
-    %{data: render_one(round, RoundView, "round.json")}
+    render_one(round, RoundView, "round.json")
   end
 
   def render("round.json", %{round: round}) do

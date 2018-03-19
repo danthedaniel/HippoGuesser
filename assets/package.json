@@ -12,7 +12,8 @@
     "preact-compat": "^3.18.0",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
-    "twitch-embed": "^1.1.4"
+    "twitch-embed": "^1.1.4",
+    "noquery-ajax": "git@github.com:teaearlgraycold/noquery-ajax.git"
   },
   "devDependencies": {
     "brunch": "git://github.com/teaearlgraycold/brunch.git#ac64093",
