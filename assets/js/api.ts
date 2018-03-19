@@ -1,9 +1,6 @@
 import { ajax } from 'noquery-ajax';
 
 namespace api {
-  /**
-   * Root path for the API.
-   */
   const ROOT_PATH = "/api";
   const ROUTES = {
     state_change: (type: State) => `/rounds/current/change/${type}`,
@@ -13,22 +10,24 @@ namespace api {
     get_round: (id: number) => `/rounds/${id}`
   };
 
+  type Method = "GET" | "POST" | "PATCH" | "DELETE" | "HEAD";
+
   /**
    * Create a Promise for an XHR.
    *
    * @template T   Return type for a successful request.
    *
-   * @param path   The path to send the XHR to. Will have the ROOT_PATH prepended.
+   * @param path   The path to send the XHR to. Will have ROOT_PATH prepended.
    * @param method HTTP method to use.
-   * @param data   Query or post parameters.
+   * @param data   Query or POST parameters.
    */
-  const ajax_promise = <T>(path: string, method?: string, data?: object) => {
+  const ajax_promise = <T>(path: string, method?: Method, data?: object) => {
     return new Promise<T>((resolve, reject) => ajax({
       url: ROOT_PATH + path,
       method: method,
       data: data,
       success: (data: T) => resolve(data),
-      error: (xhr, status) => reject(status)
+      error: xhr => reject(xhr)
     }));
   }
 
@@ -39,20 +38,16 @@ namespace api {
    * @param correct (optional) If moving to "closed", this is the winning guess.
    */
   export const state_change = (type: State, correct?: string) => {
-    return ajax_promise<Round>(
-      ROUTES.state_change(type),
-      "PATCH",
-      correct ? {correct} : null
-    );
+    return ajax_promise<Round>(ROUTES.state_change(type), "PATCH", {correct});
   }
 
   /**
    * Submit a guess.
    *
-   * @param value The guess (formatted at 0:00.00).
+   * @param value The guess (formatted as 0:00.00).
    */
   export const guess = (value: string) => {
-    return ajax_promise(ROUTES.guess, "POST", {value});
+    return ajax_promise<Round>(ROUTES.guess, "POST", {value});
   }
 
   /**
