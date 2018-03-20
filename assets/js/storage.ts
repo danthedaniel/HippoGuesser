@@ -14,6 +14,7 @@ namespace storage {
 
     const type = Object.getPrototypeOf(val).constructor.name;
     const shouldSerialize = val => {
+      const type = Object.getPrototypeOf(val).constructor.name;
       const whitelist = ["Array", "Number", "Boolean", "Object", "Array", "String"];
       return whitelist.indexOf(type) !== -1;
     };
