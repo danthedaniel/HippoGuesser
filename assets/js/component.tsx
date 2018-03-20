@@ -10,4 +10,9 @@ export default abstract class StateComponent<P, S> extends Component<P, S> {
   componentDidUpdate() {
     storage.setState(this.constructor.name, this.state);
   }
+
+  defaultState() {
+    const newState: S = storage.resetState(this.constructor.name);
+    this.setState(newState);
+  }
 }

@@ -55,7 +55,7 @@ export default class TwitchVideoEmbed extends Component<EmbedProps, EmbedState> 
       this.setState({id});
       setTimeout(() => {
         this.player = new Twitch.Player(id, options)
-      }, 300);
+      }, 200);
     }
   }
 

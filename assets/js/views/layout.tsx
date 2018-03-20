@@ -19,20 +19,13 @@ const cookies: Cookies = document
   .reduce((acc, x) => Object.assign(acc, {[x[0]]: x[1]}), {});
 
 export default class Layout extends StateComponent<{}, storage.LayoutState> {
-  /**
-   * The alert container ref.
-   */
-  flash: Flash;
-
   constructor(props) {
     super(props);
-    this.flash = null;
   }
 
   setFlash(ref: Flash) {
-    if (!this.flash) {
-      this.flash = ref;
-      this.forceUpdate();
+    if (!this.state.flash) {
+      this.setState({flash: ref});
     }
   }
 
@@ -44,7 +37,7 @@ export default class Layout extends StateComponent<{}, storage.LayoutState> {
         this.setState({username: user.name, moderator});
       });
     } else {
-      this.setState({username: "", moderator: false});
+      this.defaultState();
     }
   }
 
@@ -58,7 +51,7 @@ export default class Layout extends StateComponent<{}, storage.LayoutState> {
           </div>
         </div>
         <Switch>
-          <Route exact path="/" render={() => (<GuessView flash={this.flash} {...state} />)} />
+          <Route exact path="/" render={() => (<GuessView {...state} />)} />
           <Route exact path="/leaderboards" component={LeaderboardView} />
           <Route component={NotFoundView} />
         </Switch>
