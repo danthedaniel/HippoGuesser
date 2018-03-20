@@ -2,28 +2,15 @@ import { h, Component } from 'preact';
 import { Link } from 'react-router-dom';
 
 interface NavOption {
-  /**
-   * Displayed text for a nav item.
-   */
   label: string,
-
-  /**
-   * Link address for the nav item;
-   */
   path: string
 }
 
 interface NavBarProps {
-  /**
-   * Username for the logged in user.
-   */
   username?: string
 }
 
 interface NavBarState {
-  /**
-   * Whether the navbar is collapsed.
-   */
   collapse: boolean
 }
 
@@ -41,19 +28,10 @@ export default class NavBar extends Component<NavBarProps, NavBarState> {
     };
   }
 
-  /**
-   * Switch between an expanded and collapsed navbar. Only applies to the mobile
-   * layout.
-   */
   toggleCollapse() {
     this.setState({collapse: !this.state.collapse});
   }
 
-  /**
-   * Render a log in or log out button.
-   *
-   * @return A button element.
-   */
   logInButton() {
     if (this.props.username) {
       return (

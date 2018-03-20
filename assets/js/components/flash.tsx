@@ -12,14 +12,12 @@ interface FlashMsg {
   text: string
 }
 
-interface FlashState {
-  flashes: FlashMsg[]
-}
+interface StateType {flashes: FlashMsg[]}
 
 /**
  * Alert box container.
  */
-export default class Flash extends Component<{}, FlashState> {
+export default class Flash extends Component<{}, StateType> {
   constructor(props) {
     super(props);
     this.state = {
@@ -71,7 +69,7 @@ export default class Flash extends Component<{}, FlashState> {
     }
   }
 
-  render(props: {}, state: FlashState) {
+  render(props: {}, state: StateType) {
     return (
       <div class="alert-container">
         {

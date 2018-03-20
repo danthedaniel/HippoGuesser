@@ -1,7 +1,7 @@
 import { h, Component } from 'preact';
 import api from '../api';
 
-interface GuessesProps {
+interface PropsType {
   guesses: api.Guess[],
   correct: string
 }
@@ -14,7 +14,7 @@ const guessToSec = (guess: string): number => {
 /**
  * Guess listing.
  */
-export default class Guesses extends Component<GuessesProps, {}> {
+export default class Guesses extends Component<PropsType, {}> {
   constructor(props) {
     super(props);
   }
@@ -23,7 +23,7 @@ export default class Guesses extends Component<GuessesProps, {}> {
     return guessToSec(a.value) - guessToSec(b.value);
   }
 
-  render(props: GuessesProps, state: {}) {
+  render(props: PropsType, state: {}) {
     return (
       <ul class="list-group">
         {

@@ -3,7 +3,7 @@ import Flash from './flash';
 
 const invalid_message = "Time is invalid - must be formatted as 0:00.00";
 
-interface GuesserProps {
+interface PropsType {
   /**
    * Callback for submitting a guess.
    */
@@ -25,7 +25,7 @@ interface GuesserProps {
 /**
  * Guessing controls.
  */
-export default class Guesser extends Component<GuesserProps, {}> {
+export default class Guesser extends Component<PropsType, {}> {
   constructor(props) {
     super(props);
   }
@@ -57,7 +57,7 @@ export default class Guesser extends Component<GuesserProps, {}> {
     }
   }
 
-  render(props: GuesserProps, state: {}) {
+  render(props: PropsType, state: {}) {
     return (
       <div class="input-group mb-3">
         <div class="input-group-prepend">

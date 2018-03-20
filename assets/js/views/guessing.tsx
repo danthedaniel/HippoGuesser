@@ -8,9 +8,9 @@ import Guesser from '../components/guesser';
 import Controls from '../components/controls';
 
 import api from '../api';
-import storage from '../storage';
-import StateComponent from '../component';
+import StoredComponent from '../stored_component';
 
+type StateType = typeof defaultState;
 type ChannelMsg = api.Guess | StateMsg;
 
 interface StateMsg {
@@ -20,18 +20,28 @@ interface StateMsg {
   correct?: string
 }
 
-interface GuessProps {
+interface PropsType {
   flash: Flash,
   username: string,
   moderator: boolean
 }
 
-export default class GuessView extends StateComponent<GuessProps, storage.GuessState> {
+const defaultState = {
+  guesses: [],
+  can_submit: false,
+  game_state: null,
+  correct: null,
+  input: {
+    guess: ""
+  }
+};
+
+export default class GuessView extends StoredComponent<PropsType, StateType> {
   channel: Channel<{}, {}, ChannelMsg>;
   socket: Socket<{}>;
 
   constructor(props) {
-    super(props);
+    super(props, defaultState);
   }
 
   componentDidMount() {
@@ -43,9 +53,6 @@ export default class GuessView extends StateComponent<GuessProps, storage.GuessS
     this.socket.disconnect();
   }
 
-  /**
-   * Update the view's state for whether the user is allowed to guess.
-   */
   getSubmitStatus() {
     api.can_submit().then(response => this.setState(response))
   }
@@ -63,7 +70,7 @@ export default class GuessView extends StateComponent<GuessProps, storage.GuessS
   }
 
   /**
-   * Callback for game guess events.
+   * Callback for game guess websocket events.
    *
    * @param guess The websocket payload.
    */
@@ -74,7 +81,7 @@ export default class GuessView extends StateComponent<GuessProps, storage.GuessS
   }
 
   /**
-   * Callback for game state events.
+   * Callback for game state websocket events.
    *
    * @param msg The websocket payload.
    */
@@ -119,7 +126,7 @@ export default class GuessView extends StateComponent<GuessProps, storage.GuessS
     this.setState(newState);
   }
 
-  render(props: GuessProps, state: storage.GuessState) {
+  render(props: PropsType, state: StateType) {
     return (
       <div>
         <div class="row">

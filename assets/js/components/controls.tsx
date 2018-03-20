@@ -1,14 +1,14 @@
 import { h, Component } from 'preact';
 import api from '../api';
 
-interface ControlsProps {
+interface PropsType {
   state: null | api.State
 }
 
 /**
  * Moderator/Admin controls.
  */
-export default class Controls extends Component<ControlsProps, {}> {
+export default class Controls extends Component<PropsType, {}> {
   constructor(props) {
     super(props);
   }
@@ -17,7 +17,7 @@ export default class Controls extends Component<ControlsProps, {}> {
     api.state_change(type, correct_value);
   }
 
-  render(props: ControlsProps, state: {}) {
+  render(props: PropsType, state: {}) {
     switch (props.state) {
       case "closed":
         return <button

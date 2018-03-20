@@ -8,8 +8,7 @@ import LeaderboardView from './leaderboards';
 import NotFoundView from './not_found';
 
 import api from '../api';
-import storage from '../storage';
-import StateComponent from '../component';
+import StoredComponent from '../stored_component';
 
 interface Cookies { [key: string]: string }
 const cookies: Cookies = document
@@ -18,9 +17,16 @@ const cookies: Cookies = document
   .map(cookie => cookie.split("="))
   .reduce((acc, x) => Object.assign(acc, {[x[0]]: x[1]}), {});
 
-export default class Layout extends StateComponent<{}, storage.LayoutState> {
+type StateType = typeof defaultState;
+const defaultState = {
+  username: "",
+  moderator: false,
+  flash: null
+};
+
+export default class Layout extends StoredComponent<{}, StateType> {
   constructor(props) {
-    super(props);
+    super(props, defaultState);
   }
 
   setFlash(ref: Flash) {
@@ -41,7 +47,7 @@ export default class Layout extends StateComponent<{}, storage.LayoutState> {
     }
   }
 
-  render(props: {}, state: storage.LayoutState) {
+  render(props: {}, state: StateType) {
     return (
       <div class="container">
         <Flash ref={this.setFlash.bind(this)} />

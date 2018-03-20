@@ -1,19 +1,21 @@
 import { h } from 'preact';
 
 import api from '../api';
-import storage from '../storage';
-import StateComponent from '../component';
+import StoredComponent from '../stored_component';
 
-export default class LeaderboardView extends StateComponent<{}, storage.LeaderboardState> {
+type StateType = typeof defaultState;
+const defaultState = {leaderboard: []};
+
+export default class LeaderboardView extends StoredComponent<{}, StateType> {
   constructor(props) {
-    super(props);
+    super(props, defaultState);
   }
 
   componentDidMount() {
     api.leaderboard().then(leaderboard => this.setState({leaderboard}));
   }
 
-  render(props: {}, state: storage.LeaderboardState) {
+  render(props: {}, state: StateType) {
     return (
       <div class="row">
         <div class="col">

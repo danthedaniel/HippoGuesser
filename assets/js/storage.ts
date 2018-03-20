@@ -1,7 +1,10 @@
 import api from './api';
 
 namespace storage {
+  let defaults: {[name: string]: any} = {};
   const data_store = window.sessionStorage;
+
+  const className = (val): string => Object.getPrototypeOf(val).constructor.name;
 
   /**
    * Remove any types that aren't JSON compatible.
@@ -12,14 +15,12 @@ namespace storage {
     if (val === null)
       return val;
 
-    const type = Object.getPrototypeOf(val).constructor.name;
     const shouldSerialize = val => {
-      const type = Object.getPrototypeOf(val).constructor.name;
       const whitelist = ["Array", "Number", "Boolean", "Object", "Array", "String"];
-      return whitelist.indexOf(type) !== -1;
+      return whitelist.indexOf(className(val)) !== -1;
     };
 
-    if (type === "Array") {
+    if (className(val) === "Array") {
       return (<any[]> val).filter(shouldSerialize);
     } else if (shouldSerialize(val)) {
       return val;
@@ -60,33 +61,8 @@ namespace storage {
     data_store.setItem(view_class, JSON.stringify(state, serializer));
   }
 
-  export type GuessState = typeof GuessStateDefault;
-  const GuessStateDefault = {
-    guesses: [],
-    can_submit: false,
-    game_state: null,
-    correct: null,
-    input: {
-      guess: ""
-    }
-  };
-
-  export type LeaderboardState = typeof LeaderboardStateDefault;
-  const LeaderboardStateDefault = {
-    leaderboard: []
-  };
-
-  export type LayoutState = typeof LayoutStateDefault;
-  const LayoutStateDefault = {
-    username: "",
-    moderator: false,
-    flash: null
-  };
-
-  const defaults = {
-    LeaderboardView: LeaderboardStateDefault,
-    GuessView: GuessStateDefault,
-    Layout: LayoutStateDefault
+  export const registerDefault = (view_class: string, def: any) => {
+    defaults[view_class] = def;
   };
 }
 
