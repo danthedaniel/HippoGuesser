@@ -28,7 +28,7 @@ defmodule MtpoWeb.SessionController do
   end
 
   def logout(conn, _params) do
-    cookies = ["username"]
+    cookies = ["twitch_token"]
     redirect(remove_cookies(conn, cookies), to: "/")
   end
 

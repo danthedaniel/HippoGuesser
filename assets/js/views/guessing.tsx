@@ -1,4 +1,4 @@
-import { h, Component } from 'preact';
+import { h } from 'preact';
 import { Socket, Channel } from 'phoenix';
 
 import TwitchVideoEmbed from '../components/twitch/embed';
@@ -8,6 +8,8 @@ import Guesser from '../components/guesser';
 import Controls from '../components/controls';
 
 import api from '../api';
+import storage from '../storage';
+import StateComponent from '../component';
 
 type ChannelMsg = api.Guess | StateMsg;
 
@@ -24,31 +26,12 @@ interface GuessProps {
   moderator: boolean
 }
 
-interface GuessState {
-  guesses: api.Guess[],
-  can_submit: boolean,
-  game_state: null | api.State,
-  correct: null | string,
-  input: {
-    guess: string
-  }
-}
-
-export default class GuessView extends Component<GuessProps, GuessState> {
+export default class GuessView extends StateComponent<GuessProps, storage.GuessState> {
   channel: Channel<{}, {}, ChannelMsg>;
   socket: Socket<{}>;
 
   constructor(props) {
     super(props);
-    this.state = {
-      guesses: [],
-      can_submit: false,
-      game_state: null,
-      correct: null,
-      input: {
-        guess: ""
-      }
-    };
   }
 
   componentDidMount() {
@@ -136,12 +119,12 @@ export default class GuessView extends Component<GuessProps, GuessState> {
     this.setState(newState);
   }
 
-  render(props: GuessProps, state: GuessState) {
+  render(props: GuessProps, state: storage.GuessState) {
     return (
       <div>
         <div class="row">
           <div class="col-xs-12 col-md-12 col-lg-8">
-            <TwitchVideoEmbed channel="summoningsalt" />
+            { /*<TwitchVideoEmbed channel="summoningsalt" />*/ }
           </div>
           <div class="col-xs-12 col-md-12 col-lg-4">
             <div class="row">

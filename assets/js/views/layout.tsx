@@ -1,4 +1,4 @@
-import { h, Component } from 'preact';
+import { h } from 'preact';
 import { Route, Switch } from 'react-router-dom';
 import Navbar from '../components/navbar';
 import Flash from '../components/flash';
@@ -6,43 +6,33 @@ import Flash from '../components/flash';
 import GuessView from './guessing';
 import LeaderboardView from './leaderboards';
 import NotFoundView from './not_found';
+
 import api from '../api';
+import storage from '../storage';
+import StateComponent from '../component';
 
 interface Cookies { [key: string]: string }
-
-interface LayoutState {
-  username: string,
-
-  /**
-   * Whether the current user is a moderator or admin.
-   */
-  moderator: boolean,
-
-  /**
-   * The alert container ref.
-   */
-  flash: null | Flash
-}
-
 const cookies: Cookies = document
   .cookie
   .split("; ")
   .map(cookie => cookie.split("="))
   .reduce((acc, x) => Object.assign(acc, {[x[0]]: x[1]}), {});
 
-export default class Layout extends Component<{}, LayoutState> {
+export default class Layout extends StateComponent<{}, storage.LayoutState> {
+  /**
+   * The alert container ref.
+   */
+  flash: Flash;
+
   constructor(props) {
     super(props);
-    this.state = {
-      username: "",
-      moderator: false,
-      flash: null
-    };
+    this.flash = null;
   }
 
   setFlash(ref: Flash) {
-    if (!this.state.flash) {
-      this.setState({flash: ref});
+    if (!this.flash) {
+      this.flash = ref;
+      this.forceUpdate();
     }
   }
 
@@ -53,10 +43,12 @@ export default class Layout extends Component<{}, LayoutState> {
         const moderator = ["admin", "mod"].indexOf(user.role) !== -1;
         this.setState({username: user.name, moderator});
       });
+    } else {
+      this.setState({username: "", moderator: false});
     }
   }
 
-  render(props: {}, state: LayoutState) {
+  render(props: {}, state: storage.LayoutState) {
     return (
       <div class="container">
         <Flash ref={this.setFlash.bind(this)} />
@@ -66,8 +58,8 @@ export default class Layout extends Component<{}, LayoutState> {
           </div>
         </div>
         <Switch>
-          <Route exact path="/" render={() => (<GuessView {...state} />)} />
-          <Route path="/leaderboards/" component={LeaderboardView} />
+          <Route exact path="/" render={() => (<GuessView flash={this.flash} {...state} />)} />
+          <Route exact path="/leaderboards" component={LeaderboardView} />
           <Route component={NotFoundView} />
         </Switch>
       </div>

@@ -29,7 +29,7 @@ interface NavBarState {
 
 const options: NavOption[] = [
   {label: "Guess!", path: "/"},
-  {label: "Leaderboards", path: "/leaderboards/"}
+  {label: "Leaderboards", path: "/leaderboards"}
 ]
 
 export default class NavBar extends Component<NavBarProps, NavBarState> {
