@@ -32,6 +32,9 @@ exports.config = {
     brunchTypescript: {
       removeComments: true,
       lib: undefined
+    },
+    uglify: {
+      mangle: false
     }
   },
 

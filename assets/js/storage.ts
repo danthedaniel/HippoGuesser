@@ -7,6 +7,8 @@ namespace storage {
    * Remove any types that aren't JSON compatible.
    */
   const serializer = (key: string, val: any) => {
+    if (typeof val === 'undefined')
+      return;
     if (val === null)
       return val;
 
@@ -31,7 +33,7 @@ namespace storage {
   export const getState = <T>(view_class: string): T => {
     if (data_store.getItem(view_class)) {
       const from_store = JSON.parse(data_store.getItem(view_class));
-      return Object.assign(from_store, defaults[view_class]);
+      return Object.assign(defaults[view_class], from_store);
     } else {
       return resetState(view_class);
     }
