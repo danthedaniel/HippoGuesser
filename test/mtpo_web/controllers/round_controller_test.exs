@@ -92,9 +92,7 @@ defmodule MtpoWeb.RoundControllerTest do
   end
 
   test "current_user must be set to guess", %{conn: conn} do
-    conn
-    |> post("/api/rounds/current/guess?value=0:40.99")
-    |> json_response(400)
+    post(conn, "/api/rounds/current/guess?value=0:40.99")
     assert Enum.count(Guesses.list_guesses) == 0
   end
 end
