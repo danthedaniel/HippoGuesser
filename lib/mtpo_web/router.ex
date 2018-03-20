@@ -19,6 +19,7 @@ defmodule MtpoWeb.Router do
 
     get "/leaderboard", UserController, :leaderboard
     get "/can_submit", UserController, :can_submit
+    get "/users/me", UserController, :me
     get "/users/:id", UserController, :show
 
     get "/rounds/:id", RoundController, :show
@@ -33,7 +34,7 @@ defmodule MtpoWeb.Router do
     get "/", PageController, :index
     get "/auth/twitch", SessionController, :auth
     get "/auth/twitch/callback", SessionController, :callback
-    get "/auth/logout", SessionController, :delete
+    get "/auth/logout", SessionController, :logout
 
     # For react router
     get "/*path", PageController, :index

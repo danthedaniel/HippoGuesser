@@ -13,9 +13,12 @@ defmodule MtpoWeb.UserView do
   end
 
   def render("user.json", %{user: user}) do
-    %{id: user.id,
+    %{
+      id: user.id,
       name: user.name,
-      wins: 0}
+      wins: Users.num_correct_guesses(user),
+      role: Atom.to_string(user.perm_level)
+    }
   end
 
   def render("leaderboard.json", _params), do: Users.leaderboard

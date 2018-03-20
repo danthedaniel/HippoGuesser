@@ -141,7 +141,7 @@ export default class GuessView extends Component<GuessProps, GuessState> {
       <div>
         <div class="row">
           <div class="col-xs-12 col-md-12 col-lg-8">
-            <TwitchVideoEmbed channel="summoningsalt" />
+            { /*<TwitchVideoEmbed channel="summoningsalt" />*/ }
           </div>
           <div class="col-xs-12 col-md-12 col-lg-4">
             <div class="row">

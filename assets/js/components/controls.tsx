@@ -39,7 +39,7 @@ export default class Controls extends Component<ControlsProps, {}> {
         </button>;
       default:
         return <button
-          class="btn btn-danger btn-block mb-3"
+          class="btn btn-primary btn-block mb-3"
           disabled>
           Error
         </button>;

@@ -6,6 +6,7 @@ import Flash from '../components/flash';
 import GuessView from './guessing';
 import LeaderboardView from './leaderboards';
 import NotFoundView from './not_found';
+import api from '../api';
 
 interface Cookies { [key: string]: string }
 
@@ -33,8 +34,8 @@ export default class Layout extends Component<{}, LayoutState> {
   constructor(props) {
     super(props);
     this.state = {
-      username: cookies["username"],
-      moderator: ["mod", "admin"].indexOf(cookies["role"]) !== -1,
+      username: "",
+      moderator: false,
       flash: null
     };
   }
@@ -42,6 +43,16 @@ export default class Layout extends Component<{}, LayoutState> {
   setFlash(ref: Flash) {
     if (!this.state.flash) {
       this.setState({flash: ref});
+    }
+  }
+
+  componentDidMount() {
+    api.authorize(cookies.twitch_token);
+    if (api.authorized()) {
+      api.get_me().then(user => {
+        const moderator = ["admin", "mod"].indexOf(user.role) !== -1;
+        this.setState({username: user.name, moderator});
+      });
     }
   }
 

@@ -13,8 +13,12 @@ defmodule MtpoWeb.FallbackController do
   end
 
   def call(conn, {:error, :not_found}) do
-    conn
-    |> put_status(:not_found)
-    |> render("/", :"404")
+    send_resp(conn, 404, "")
+    # |> render("error.json", "not_found")
+  end
+
+  def call(conn, {:error, :unauthorized}) do
+    send_resp(conn, 403, "")
+    # |> render("error.json", "unauthorized")
   end
 end

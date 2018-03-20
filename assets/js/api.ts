@@ -1,13 +1,16 @@
 import { ajax } from 'noquery-ajax';
 
 namespace api {
+  let _token: null | string = null;
+
   const ROOT_PATH = "/api";
   const ROUTES = {
     state_change: (type: State) => `/rounds/current/change/${type}`,
     guess: "/rounds/current/guess",
     can_submit: "/can_submit",
     leaderboard: "/leaderboard",
-    get_round: (id: number) => `/rounds/${id}`
+    get_round: (id: number) => `/rounds/${id}`,
+    get_me: "/users/me"
   };
 
   type Method = "GET" | "POST" | "PATCH" | "DELETE" | "HEAD";
@@ -24,12 +27,27 @@ namespace api {
   const ajax_promise = <T>(path: string, method?: Method, data?: object) => {
     return new Promise<T>((resolve, reject) => ajax({
       url: ROOT_PATH + path,
+      headers: {"Authorization": `Bearer ${_token}`},
       method: method,
       data: data,
-      success: (data: T) => resolve(data),
+      success: data => resolve(data),
       error: xhr => reject(xhr)
     }));
   }
+
+  /**
+   * Set the API token to use with all AJAX requests.
+   */
+  export const authorize = (token: string) => {
+    if (token) {
+      _token = token;
+    }
+  };
+
+  /**
+   * Whether the client is authorized.
+   */
+  export const authorized = () => _token !== null;
 
   /**
    * Make a state change to the current round.
@@ -71,6 +89,10 @@ namespace api {
     return ajax_promise<Round>(ROUTES.get_round(id));
   }
 
+  export const get_me = () => {
+    return ajax_promise<User>(ROUTES.get_me);
+  };
+
   /**
    * The game state.
    */
@@ -92,7 +114,8 @@ namespace api {
   export interface User {
     id: number,
     name: string,
-    wins: number
+    wins: number,
+    role: string
   }
 
   export interface Guess {

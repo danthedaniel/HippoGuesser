@@ -26,36 +26,6 @@ defmodule MtpoWeb.UserControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  test "admins can elevate other users to mod", %{conn: conn} do
-    pleb = user()
-    god = admin()
-    conn
-    |> Plug.Conn.assign(:current_user, god.id)
-    |> patch("/api/users/#{pleb.id}/mod")
-    |> json_response(200)
-    assert Users.get_user!(pleb.id).perm_level == :mod
-  end
-
-  test "admins can elevate other users to admin", %{conn: conn} do
-    pleb = user()
-    god = admin()
-    conn
-    |> Plug.Conn.assign(:current_user, god.id)
-    |> patch("/api/users/#{pleb.id}/admin")
-    |> json_response(200)
-    assert Users.get_user!(pleb.id).perm_level == :admin
-  end
-
-  test "mods can not elevate other users", %{conn: conn} do
-    pleb = user()
-    god = mod()
-    conn
-    |> Plug.Conn.assign(:current_user, god.id)
-    |> patch("/api/users/#{pleb.id}/mod")
-    |> json_response(403)
-    assert Users.get_user!(pleb.id).perm_level == :user
-  end
-
   test "show is accessible without a current_user set", %{conn: conn} do
     pleb = user()
     conn

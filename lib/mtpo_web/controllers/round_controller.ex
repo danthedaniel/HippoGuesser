@@ -3,7 +3,8 @@ defmodule MtpoWeb.RoundController do
 
   alias Mtpo.Rounds
   alias Mtpo.Rounds.Round
-  alias Mtpo.Session
+  alias Mtpo.Users.User
+  alias MtpoWeb.SessionHelper
   alias Mtpo.Guesses
 
   action_fallback MtpoWeb.FallbackController
@@ -18,7 +19,7 @@ defmodule MtpoWeb.RoundController do
 
   def change_state(conn, %{"state" => "closed", "correct" => correct}) do
     round = Rounds.current_round!
-    if Session.is_mod(conn) do
+    if SessionHelper.is_mod(conn) do
       changeset = %{"state" => "closed", "correct_value" => correct}
       {:ok, round} = Rounds.update_round(round, changeset)
       show(conn, :ok, round)
@@ -27,7 +28,7 @@ defmodule MtpoWeb.RoundController do
     end
   end
   def change_state(conn, %{"state" => "in_progress"}) do
-    if Session.is_mod(conn) do
+    if SessionHelper.is_mod(conn) do
       case Rounds.current_round!.state do
         :closed ->
           {:ok, round} = Rounds.create_round
@@ -41,7 +42,7 @@ defmodule MtpoWeb.RoundController do
   end
   def change_state(conn, %{"state" => "completed"}) do
     round = Rounds.current_round!
-    if Session.is_mod(conn) do
+    if SessionHelper.is_mod(conn) do
       case Rounds.update_round(round, %{"state" => "completed"}) do
         {:ok, _} -> show(conn, :ok, round)
         {:error, _} -> show(conn, 400, round)
@@ -52,20 +53,17 @@ defmodule MtpoWeb.RoundController do
   end
 
   def guess(conn, %{"value" => value}) do
-    current_user = Session.current_user(conn)
-    round = Rounds.current_round!
-    if not is_nil(current_user) do
+    with {:ok, %User{} = user} <- SessionHelper.current_user(conn) do
+      round = Rounds.current_round!
       changeset = %{
         "round_id" => round.id,
-        "user_id" => current_user.id,
+        "user_id" => user.id,
         "value" => value
       }
       case Guesses.create_guess(changeset) do
         {:ok, _} -> show(conn, :ok, round)
         {:error, _} -> show(conn, 400, round)
       end
-    else
-      show(conn, 400, round)
     end
   end
 

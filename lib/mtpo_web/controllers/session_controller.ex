@@ -1,6 +1,6 @@
 defmodule MtpoWeb.SessionController do
   use MtpoWeb, :controller
-  alias Mtpo.Users
+  alias Mtpo.{Users, Sessions}
 
   action_fallback MtpoWeb.FallbackController
 
@@ -15,11 +15,11 @@ defmodule MtpoWeb.SessionController do
       token = Twitch.get_token!(code)
       username = Twitch.get_username(token["access_token"]) |> String.downcase
       {:ok, user} = Users.create_or_get_user(%{name: username})
+      {:ok, session} = Sessions.create_session_from_token(token, user)
+
+      cookies = %{"twitch_token" => session.token}
       conn = conn
-      |> put_session(:auth_token, token["access_token"])
-      |> put_session(:user_id, user.id)
-      |> put_resp_cookie("username", user.name, max_age: token["expires_in"], http_only: false)
-      |> put_resp_cookie("role", Atom.to_string(user.perm_level), max_age: token["expires_in"], http_only: false)
+      |> add_cookies(cookies, max_age: token["expires_in"], http_only: false)
       |> put_resp_header("Access-Control-Allow-Credentials", "true")
       redirect(conn, to: "/")
     else
@@ -27,11 +27,18 @@ defmodule MtpoWeb.SessionController do
     end
   end
 
-  def delete(conn, _params) do
-    conn = conn
-    |> delete_session(:auth_token)
-    |> delete_session(:user_id)
-    |> delete_resp_cookie("username")
-    redirect(conn, to: "/")
+  def logout(conn, _params) do
+    cookies = ["username"]
+    redirect(remove_cookies(conn, cookies), to: "/")
+  end
+
+  defp add_cookies(conn, cookies, opts) when is_map(cookies) do
+    Enum.reduce(cookies, conn, fn({k, v}, acc) ->
+      put_resp_cookie(acc, k, v, opts)
+    end)
+  end
+
+  defp remove_cookies(conn, cookies) when is_list(cookies) do
+    Enum.reduce(cookies, conn, &delete_resp_cookie(&2, &1))
   end
 end

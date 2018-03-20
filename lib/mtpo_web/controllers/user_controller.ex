@@ -2,23 +2,29 @@ defmodule MtpoWeb.UserController do
   use MtpoWeb, :controller
 
   alias Mtpo.Users
-  alias Mtpo.Session
+  alias Mtpo.Users.User
+  alias MtpoWeb.SessionHelper
 
   action_fallback MtpoWeb.FallbackController
 
-  def can_submit(conn, _params) do
-    render(conn, "can_submit.json", %{user: Session.current_user(conn)})
+  def me(conn, _params) do
+    with {:ok, %User{} = user} <- SessionHelper.current_user(conn) do
+      show(conn, user, 200)
+    end
   end
 
-  def show(conn, id, status) do
-    user = Users.get_user!(id)
+  def can_submit(conn, _params) do
+    render(conn, "can_submit.json", %{user: SessionHelper.current_user!(conn)})
+  end
+
+  def show(_conn, nil, _status), do: {:error, :not_found}
+  def show(conn, %User{} = user, status) do
     conn
     |> put_status(status)
-    |> render("show.json", user: user)
+    |> render("show.json", %{user: user})
   end
-  def show(conn, %{"id" => id}) do
-    show(conn, id, :ok)
-  end
+  def show(conn, id, status), do: show(conn, Users.get_user!(id), status)
+  def show(conn, %{"id" => id}), do: show(conn, id, :ok)
 
   def leaderboard(conn, _params) do
     render(conn, "leaderboard.json", %{})
