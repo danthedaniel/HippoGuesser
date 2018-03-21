@@ -8,7 +8,7 @@ import Guesser from '../components/guesser';
 import Controls from '../components/controls';
 
 import api from '../api';
-import StoredComponent from '../stored_component';
+import StoredComponent from 'stored-component';
 
 type StateType = typeof defaultState;
 type ChannelMsg = api.Guess | StateMsg;

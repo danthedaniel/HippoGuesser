@@ -1,7 +1,7 @@
 import { h } from 'preact';
 
 import api from '../api';
-import StoredComponent from '../stored_component';
+import StoredComponent from 'stored-component';
 
 type StateType = typeof defaultState;
 const defaultState = {leaderboard: []};

@@ -7,13 +7,14 @@
     "watch": "brunch watch --stdin"
   },
   "dependencies": {
+    "noquery-ajax": "git@github.com:teaearlgraycold/noquery-ajax.git#3f81f0b",
     "phoenix": "file:../deps/phoenix",
     "preact": "^8.2.7",
     "preact-compat": "^3.18.0",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
-    "twitch-embed": "^1.1.4",
-    "noquery-ajax": "git@github.com:teaearlgraycold/noquery-ajax.git"
+    "stored-component": "git@github.com:teaearlgraycold/stored-component.git#d50e760",
+    "twitch-embed": "^1.1.4"
   },
   "devDependencies": {
     "brunch": "git://github.com/teaearlgraycold/brunch.git#ac64093",
@@ -22,6 +23,7 @@
     "typescript": "^2.7.2",
     "uglify-js-brunch": "2.10.0",
     "@types/node": "^9.4.7",
+    "@types/react": "^16.0.40",
     "phoenix-typings": "git://github.com/teaearlgraycold/phoenix-typings.git#7902809"
   }
 }

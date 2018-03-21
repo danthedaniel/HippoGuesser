@@ -8,7 +8,7 @@ import LeaderboardView from './leaderboards';
 import NotFoundView from './not_found';
 
 import api from '../api';
-import StoredComponent from '../stored_component';
+import StoredComponent from 'stored-component';
 
 interface Cookies { [key: string]: string }
 const cookies: Cookies = document
