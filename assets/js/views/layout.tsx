@@ -21,7 +21,7 @@ type StateType = typeof defaultState;
 const defaultState = {
   username: "",
   moderator: false,
-  flash: null
+  flash: null as Flash
 };
 
 export default class Layout extends StoredComponent<{}, StateType> {

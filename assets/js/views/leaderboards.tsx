@@ -4,7 +4,7 @@ import api from '../api';
 import StoredComponent from 'stored-component';
 
 type StateType = typeof defaultState;
-const defaultState = {leaderboard: []};
+const defaultState = {leaderboard: [] as api.BoardEntry[]};
 
 export default class LeaderboardView extends StoredComponent<{}, StateType> {
   constructor(props) {

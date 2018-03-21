@@ -10,7 +10,7 @@
   },
   "include": [
     "js/**/*",
-    "node_modules/phoenix-typings/phoenix.d.ts",
+    "node_modules/phoenix-types/phoenix.d.ts",
     "node_modules/@types/**/*"
   ]
 }

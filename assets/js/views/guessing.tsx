@@ -27,10 +27,10 @@ interface PropsType {
 }
 
 const defaultState = {
-  guesses: [],
+  guesses: [] as api.Guess[],
   can_submit: false,
-  game_state: null,
-  correct: null,
+  game_state: "closed" as api.State,
+  correct: "",
   input: {
     guess: ""
   }
@@ -99,7 +99,7 @@ export default class GuessView extends StoredComponent<PropsType, StateType> {
     }
     if (msg.state === "in_progress") {
       this.getSubmitStatus();
-      newState.correct = null;
+      newState.correct = "";
     }
     this.setState(newState);
   }
@@ -128,28 +128,26 @@ export default class GuessView extends StoredComponent<PropsType, StateType> {
 
   render(props: PropsType, state: StateType) {
     return (
-      <div>
-        <div class="row">
-          <div class="col-xs-12 col-md-12 col-lg-8">
-            <TwitchVideoEmbed channel="summoningsalt" />
-          </div>
-          <div class="col-xs-12 col-md-12 col-lg-4">
-            <div class="row">
-              <div class="col">
-                { !props.username &&
-                  <div class="alert alert-info" role="alert">
-                    Please log in to participate.
-                  </div> }
-                { props.username && <Guesser
-                  submit={this.submitGuess.bind(this)}
-                  update={this.setInput.bind(this, "guess")}
-                  value={state.input.guess}
-                  flash={props.flash}
-                  disabled={!this.state.can_submit} /> }
-                { props.username && props.moderator && <Controls
-                    state={state.game_state} /> }
-                <Guesses guesses={state.guesses} correct={state.correct} />
-              </div>
+      <div class="row">
+        <div class="col-xs-12 col-md-12 col-lg-8">
+          <TwitchVideoEmbed channel="summoningsalt" />
+        </div>
+        <div class="col-xs-12 col-md-12 col-lg-4">
+          <div class="row">
+            <div class="col">
+              { !props.username &&
+                <div class="alert alert-info" role="alert">
+                  Please log in to participate.
+                </div> }
+              { props.username && <Guesser
+                submit={this.submitGuess.bind(this)}
+                update={this.setInput.bind(this, "guess")}
+                value={state.input.guess}
+                flash={props.flash}
+                disabled={!this.state.can_submit} /> }
+              { props.username && props.moderator && <Controls
+                  state={state.game_state} /> }
+              <Guesses guesses={state.guesses} correct={state.correct} />
             </div>
           </div>
         </div>
