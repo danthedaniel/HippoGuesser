@@ -25,6 +25,7 @@ defmodule MtpoBot.Bot do
   alias ExIrc.Client
   alias IrcMessage
   alias Mtpo.{Users, Guesses, Rounds}
+  alias Mtpo.Guesses.Guess
   alias MtpoWeb.RoomChannel
 
   def start_link(%{:nick => nick} = params) when is_map(params) do
@@ -146,7 +147,7 @@ defmodule MtpoBot.Bot do
     command = Regex.named_captures(command_pattern, text)
 
     # First try to parse a raw timestamp guess
-    case check_time(text) do
+    case Guess.check_time(text) do
       {:ok, _} -> guess(user, text)
       :error   -> dispatch_command(user, config, command)
     end
@@ -212,7 +213,7 @@ defmodule MtpoBot.Bot do
   Execute the guess command.
   """
   def guess(user, value) do
-    with {:ok, time} <- check_time(value) do
+    with {:ok, time} <- Guess.check_time(value) do
       Guesses.create_guess(%{
         "round_id" => Rounds.current_round!.id,
         "user_id"  => user.id,
@@ -237,7 +238,7 @@ defmodule MtpoBot.Bot do
         :closed      -> Rounds.create_round
         :in_progress -> Rounds.update_round(round, %{state: state})
         :completed   ->
-          with {:ok, correct} <- Enum.at(args, 0) |> check_time do
+          with {:ok, correct} <- Enum.at(args, 0) |> Guess.check_time do
             Rounds.update_round(round, %{state: state, correct_value: correct})
           end
       end
@@ -250,29 +251,6 @@ defmodule MtpoBot.Bot do
       %{"broadcaster" => _} -> :admin
       %{"banned" => _}      -> :banned
       _                     -> :user
-    end
-  end
-
-  @doc """
-  Parse and validate a time-formatted string.
-
-  ## Examples
-
-      iex> check_time("0:40.99")
-      {:ok, "0:40.99"}
-
-      iex> check_time("40.99")
-      {:ok, "0:40.99"}
-
-      iex> check_time("foo")
-      :error
-  """
-  def check_time(value) do
-    time_pattern = ~r/^(?<minutes>\d+)?:?(?<seconds>\d\d.\d\d)$/
-    case Regex.named_captures(time_pattern, value) do
-      %{"minutes" => "", "seconds" => sec}  -> {:ok, "0:" <> sec}
-      %{"minutes" => min, "seconds" => sec} -> {:ok, min <> ":" <> sec}
-      nil -> :error
     end
   end
 end

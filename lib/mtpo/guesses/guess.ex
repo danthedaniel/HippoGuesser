@@ -4,6 +4,7 @@ defmodule Mtpo.Guesses.Guess do
   alias Mtpo.Guesses.Guess
   alias Mtpo.Rounds
 
+  @value_regex ~r/^(?<min>\d+)?[\.:]?(?<sec>\d\d)[:\.](?<frac>\d\d)$/
 
   schema "guesses" do
     field :value, :string
@@ -13,17 +14,44 @@ defmodule Mtpo.Guesses.Guess do
     timestamps()
   end
 
-  def value_regex do
-    ~r/^(?<min>\d+):(?<sec>\d\d.\d\d)$/
+  @doc """
+  Parse and validate a time-formatted string.
+
+  ## Examples
+
+      iex> check_time("0:40.99")
+      {:ok, "0:40.99"}
+
+      iex> check_time("40.99")
+      {:ok, "0:40.99"}
+
+      iex> check_time("foo")
+      :error
+  """
+  def check_time(value) do
+    case Regex.named_captures(@value_regex, value) do
+      %{"min" => "", "sec" => sec, "frac" => frac}  -> {:ok, "0:" <> sec <> "." <> frac}
+      %{"min" => min, "sec" => sec, "frac" => frac} -> {:ok, min <> ":" <> sec <> "." <> frac}
+      nil -> :error
+    end
   end
 
+  @doc """
+  Parse a time-formatted string into a float.
+
+  ## Examples
+
+    iex> value_seconds("0:40.99")
+    40.99
+  """
   def value_seconds(value) do
     %{
       "min" => minutes,
-      "sec" => seconds
-    } = Regex.named_captures(Guess.value_regex, value)
+      "sec" => seconds,
+      "frac" => fraction
+    } = Regex.named_captures(@value_regex, value)
     {minutes, ""} = Float.parse(minutes)
-    {seconds, ""} = Float.parse(seconds)
+    {seconds, ""} = Float.parse(seconds <> "." <> fraction)
     minutes * 60.0 + seconds
   end
 
@@ -50,7 +78,7 @@ defmodule Mtpo.Guesses.Guess do
     guess
     |> cast(attrs, [:round_id, :user_id, :value])
     |> validate_required([:round_id, :user_id, :value])
-    |> validate_format(:value, Guess.value_regex)
+    |> validate_format(:value, @value_regex)
     |> Guess.validate_round
     |> unique_constraint(:round_id, name: :guesses_user_id_round_id_index)
     |> unique_constraint(:round_id, name: :guesses_value_round_id_index)

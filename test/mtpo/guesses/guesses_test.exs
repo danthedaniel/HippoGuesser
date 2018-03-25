@@ -80,5 +80,22 @@ defmodule Mtpo.GuessesTest do
       }
       {:error, _} = Guesses.create_guess(changeset)
     end
+
+    test "check_time returns nil on malformed input" do
+      :error = Guess.check_time("foo")
+    end
+
+    test "check_time expands input values without minutes" do
+      {:ok, "0:40.99"} = Guess.check_time("40.99")
+    end
+
+    test "check_time passes through valid inputs" do
+      {:ok, "0:40.99"} = Guess.check_time("0:40.99")
+    end
+
+    test "check_time reformats to standardized seperators" do
+      {:ok, "0:45.82"} = Guess.check_time("0.45:82")
+      {:ok, "0:45.82"} = Guess.check_time("45:82")
+    end
   end
 end
