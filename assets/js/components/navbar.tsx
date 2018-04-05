@@ -57,7 +57,7 @@ export default class NavBar extends Component<NavBarProps, NavBarState> {
     const collapse = state.collapse ? "collapse" : "";
     return (
       <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand" href="#">Hippo Guesser</a>
+        <span class="navbar-brand">Hippo Guesser</span>
         <button
           class="navbar-toggler"
           type="button"
