@@ -169,6 +169,8 @@ defmodule MtpoBot.Bot do
       {"leaderboard", [""]}  -> leaderboard(config)
       {"leaderboards", [""]} -> leaderboard(config)
       {"gg", [""]}           -> gg(user, config)
+      {"perm", [other]}      -> whitelist(config, user, other)
+      {"unperm", [other]}    -> unwhitelist(config, user, other)
       _                      -> nil
     end
   end
@@ -242,6 +244,28 @@ defmodule MtpoBot.Bot do
             Rounds.update_round(round, %{state: state, correct_value: correct})
           end
       end
+    end
+  end
+
+  @doc """
+  Add a target user to the round controlling whitelist.
+  """
+  def whitelist(config, user, target) do
+    if user.perm_level == :admin do
+      {:ok, target} = Users.create_or_get_user(%{name: String.downcase(target)})
+      {:ok, _} = Users.update_user(target, %{whitelisted: true})
+      Client.msg config.client, :privmsg, config.channel, "User added."
+    end
+  end
+
+  @doc """
+  Remove a target user from the round controlling whitelist.
+  """
+  def unwhitelist(config, user, target) do
+    if user.perm_level == :admin do
+      {:ok, target} = Users.create_or_get_user(%{name: String.downcase(target)})
+      {:ok, _} = Users.update_user(target, %{whitelisted: false})
+      Client.msg config.client, :privmsg, config.channel, "User removed."
     end
   end
 

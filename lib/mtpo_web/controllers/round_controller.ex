@@ -3,6 +3,7 @@ defmodule MtpoWeb.RoundController do
 
   alias Mtpo.Rounds
   alias Mtpo.Rounds.Round
+  alias Mtpo.Users
   alias Mtpo.Users.User
   alias MtpoWeb.SessionHelper
   alias Mtpo.Guesses
@@ -19,7 +20,8 @@ defmodule MtpoWeb.RoundController do
 
   def change_state(conn, %{"state" => "closed", "correct" => correct}) do
     round = Rounds.current_round!
-    if SessionHelper.is_mod(conn) do
+    current_user = SessionHelper.current_user!(conn)
+    if Users.can_state_change(current_user) do
       changeset = %{"state" => "closed", "correct_value" => correct}
       {:ok, round} = Rounds.update_round(round, changeset)
       show(conn, :ok, round)
@@ -28,7 +30,8 @@ defmodule MtpoWeb.RoundController do
     end
   end
   def change_state(conn, %{"state" => "in_progress"}) do
-    if SessionHelper.is_mod(conn) do
+    current_user = SessionHelper.current_user!(conn)
+    if Users.can_state_change(current_user) do
       case Rounds.current_round!.state do
         :closed ->
           {:ok, round} = Rounds.create_round
@@ -42,7 +45,8 @@ defmodule MtpoWeb.RoundController do
   end
   def change_state(conn, %{"state" => "completed"}) do
     round = Rounds.current_round!
-    if SessionHelper.is_mod(conn) do
+    current_user = SessionHelper.current_user!(conn)
+    if Users.can_state_change(current_user) do
       case Rounds.update_round(round, %{"state" => "completed"}) do
         {:ok, _} -> show(conn, :ok, round)
         {:error, _} -> show(conn, 400, round)

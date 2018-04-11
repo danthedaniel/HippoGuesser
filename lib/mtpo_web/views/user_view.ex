@@ -17,7 +17,8 @@ defmodule MtpoWeb.UserView do
       id: user.id,
       name: user.name,
       wins: Users.num_correct_guesses(user),
-      role: Atom.to_string(user.perm_level)
+      role: Atom.to_string(user.perm_level),
+      whitelisted: user.whitelisted
     }
   end
 

@@ -26,6 +26,8 @@ defmodule MtpoWeb.SessionHelper do
             if to_unix(session.expires_on) > :os.system_time(:second) do
               user = Users.get_user!(session.user_id)
               {:ok, user}
+            else
+              raise "Token is expired"
             end
         end
       rescue

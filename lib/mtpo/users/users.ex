@@ -10,6 +10,10 @@ defmodule Mtpo.Users do
   alias Mtpo.Rounds
   alias Mtpo.Guesses.Guess
 
+  @doc """
+  A collection of the top `count` users who have won a round.
+  """
+  # @spec leaderboard(number) :: [%{name: string, count: number}]
   def leaderboard(count \\ 20) do
     query = from g in Guess,
       join: r in assoc(g, :round),
@@ -22,6 +26,9 @@ defmodule Mtpo.Users do
     Repo.all query
   end
 
+  @doc """
+  How many wins the user has.
+  """
   def num_correct_guesses(%User{} = user) do
     query = from g in Guess,
       join: r in assoc(g, :round),
@@ -30,7 +37,10 @@ defmodule Mtpo.Users do
     Repo.one query
   end
 
-  def has_guessed(user) do
+  @doc """
+  Whether the user has guessed in the current round.
+  """
+  def has_guessed(%User{} = user) do
     round = Rounds.current_round!
     case Repo.get_by(Guess, round_id: round.id, user_id: user.id) do
       nil -> false
@@ -38,8 +48,12 @@ defmodule Mtpo.Users do
     end
   end
 
-  def can_state_change(user) do
-    Enum.member?([:mod, :admin], user.perm_level)
+  @doc """
+  If the user is privileged to change the state of a round.
+  """
+  def can_state_change(nil), do: false
+  def can_state_change(%User{} = user) do
+    user.whitelisted or user.perm_level == :admin
   end
 
   @doc """

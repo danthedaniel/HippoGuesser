@@ -21,6 +21,8 @@ defmodule MtpoWeb.Router do
     get "/can_submit", UserController, :can_submit
     get "/users/me", UserController, :me
     get "/users/:id", UserController, :show
+    patch "/users/:id/whitelist", UserController, :whitelist
+    delete "/users/:id/whitelist", UserController, :unwhitelist
 
     get "/rounds/:id", RoundController, :show
     get "/rounds/current", RoundController, :current

@@ -26,8 +26,12 @@ to defeat King Hippo in a speedrun.
 * `!leaderboard` - Display the leaderboard
 * `!hipposite` - Display the URL for the hippo guesser site.
 
-### Moderators / Broadcaster
+### Whitelisted Moderators / Broadcaster
 * `!start` - Start a new round
 * `!stop` - End guessing period
 * `!winner 0:00.00` or `!w 0:00.00` - Select winner by the correct time
 * `!gg` - Close the round without selecting a winner
+
+### Broadcaster Only
+* `!perm username` - Give a user permission to control rounds.
+* `!unperm username` - Remove permission to control rounds.

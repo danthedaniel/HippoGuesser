@@ -17,6 +17,26 @@ defmodule MtpoWeb.UserController do
     render(conn, "can_submit.json", %{user: SessionHelper.current_user!(conn)})
   end
 
+  def whitelist(conn, %{"id" => id}) do
+    status = if SessionHelper.is_admin(conn) do
+      Users.update_user(Users.get_user!(id), whitelisted: true)
+      :ok
+    else
+      :forbidden
+    end
+    show(conn, id, status)
+  end
+
+  def unwhitelist(conn, %{"id" => id}) do
+    status = if SessionHelper.is_admin(conn) do
+      Users.update_user(Users.get_user!(id), whitelisted: false)
+      :ok
+    else
+      :forbidden
+    end
+    show(conn, id, status)
+  end
+
   def show(_conn, nil, _status), do: {:error, :not_found}
   def show(conn, %User{} = user, status) do
     conn

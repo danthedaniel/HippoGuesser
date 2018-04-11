@@ -89,6 +89,9 @@ namespace api {
     return ajax_promise<Round>(ROUTES.get_round(id));
   }
 
+  /**
+   * Get the current user.
+   */
   export const get_me = () => {
     return ajax_promise<User>(ROUTES.get_me);
   };
@@ -115,7 +118,8 @@ namespace api {
     id: number,
     name: string,
     wins: number,
-    role: string
+    role: string,
+    whitelisted: boolean
   }
 
   export interface Guess {

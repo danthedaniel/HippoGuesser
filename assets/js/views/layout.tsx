@@ -20,7 +20,7 @@ const cookies: Cookies = document
 type StateType = typeof defaultState;
 const defaultState = {
   username: "",
-  moderator: false,
+  can_control: false,
   flash: null as Flash
 };
 
@@ -39,8 +39,8 @@ export default class Layout extends StoredComponent<{}, StateType> {
     api.authorize(cookies.twitch_token);
     if (api.authorized()) {
       api.get_me().then(user => {
-        const moderator = ["admin", "mod"].indexOf(user.role) !== -1;
-        this.setState({username: user.name, moderator});
+        const can_control = user.whitelisted || user.role === "admin";
+        this.setState({username: user.name, can_control});
       });
     } else {
       this.defaultState();

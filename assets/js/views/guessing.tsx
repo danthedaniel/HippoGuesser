@@ -23,7 +23,7 @@ interface StateMsg {
 interface PropsType {
   flash: Flash,
   username: string,
-  moderator: boolean
+  can_control: boolean
 }
 
 const defaultState = {
@@ -145,7 +145,7 @@ export default class GuessView extends StoredComponent<PropsType, StateType> {
                 value={state.input.guess}
                 flash={props.flash}
                 disabled={!this.state.can_submit} /> }
-              { props.username && props.moderator && <Controls
+              { props.username && props.can_control && <Controls
                   state={state.game_state} /> }
               <Guesses guesses={state.guesses} correct={state.correct} />
             </div>
