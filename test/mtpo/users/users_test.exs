@@ -40,8 +40,8 @@ defmodule Mtpo.UsersTest do
       assert not Users.can_state_change(user_fixture())
     end
 
-    test "mods can state change" do
-      assert Users.can_state_change(user_fixture(%{perm_level: :mod}))
+    test "whitelited mods can state change" do
+      assert Users.can_state_change(user_fixture(%{perm_level: :mod, whitelisted: true}))
     end
 
     test "leaderboard is empty to start" do

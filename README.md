@@ -31,6 +31,7 @@ to defeat King Hippo in a speedrun.
 * `!stop` - End guessing period
 * `!winner 0:00.00` or `!w 0:00.00` - Select winner by the correct time
 * `!gg` - Close the round without selecting a winner
+* `!permtted` - See who's able to control the bot.
 
 ### Broadcaster Only
 * `!perm username` - Give a user permission to control rounds.

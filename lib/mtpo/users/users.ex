@@ -13,7 +13,7 @@ defmodule Mtpo.Users do
   @doc """
   A collection of the top `count` users who have won a round.
   """
-  # @spec leaderboard(number) :: [%{name: string, count: number}]
+  @spec leaderboard(number) :: [%{name: charlist, count: number}]
   def leaderboard(count \\ 20) do
     query = from g in Guess,
       join: r in assoc(g, :round),
@@ -24,6 +24,13 @@ defmodule Mtpo.Users do
       order_by: [desc: :count],
       limit: ^count
     Repo.all query
+  end
+
+  @doc """
+  All users that are whitelisted.
+  """
+  def whitelist do
+    Repo.all from u in User, where: u.whitelisted == true
   end
 
   @doc """
@@ -99,7 +106,10 @@ defmodule Mtpo.Users do
   """
   def create_user(attrs \\ %{}) do
     # TODO: What the fuck, why is this necessary?
-    attrs = Map.put_new(attrs, :perm_level, :user)
+    attrs = attrs
+    |> Map.put_new(:perm_level, :user)
+    |> Map.put_new(:whitelisted, false)
+
     %User{}
     |> User.changeset(attrs)
     |> Repo.insert()

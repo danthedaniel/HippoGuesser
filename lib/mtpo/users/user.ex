@@ -6,6 +6,7 @@ defmodule Mtpo.Users.User do
 
   schema "users" do
     field :name, :string
+    field :whitelisted, :boolean
     field :perm_level, PermLevel
     has_many :guesses, Mtpo.Guesses.Guess
 
@@ -15,7 +16,7 @@ defmodule Mtpo.Users.User do
   @doc false
   def changeset(%User{} = user, attrs) do
     user
-    |> cast(attrs, [:name, :perm_level])
+    |> cast(attrs, [:name, :perm_level, :whitelisted])
     |> validate_required([:name, :perm_level])
     |> unique_constraint(:name)
   end

@@ -2,7 +2,7 @@ defmodule MtpoWeb.RoundControllerTest do
   use MtpoWeb.ConnCase
   alias Mtpo.{Rounds, Users, Guesses}
 
-  @mod_attrs %{name: "summoningsalt", perm_level: :mod}
+  @mod_attrs %{name: "summoningsalt", perm_level: :mod, whitelisted: true}
   @user_attrs %{name: "andrewg", perm_level: :user}
 
   def mod do
@@ -39,7 +39,7 @@ defmodule MtpoWeb.RoundControllerTest do
     assert Rounds.current_round!.state == :completed
   end
 
-  test "mods can mark a round as closed", %{conn: conn} do
+  test "whitelisted mods can mark a round as closed", %{conn: conn} do
     Rounds.update_round(Rounds.current_round!, %{state: :completed})
     god = mod()
     conn

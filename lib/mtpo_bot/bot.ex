@@ -128,15 +128,13 @@ defmodule MtpoBot.Bot do
     |> Map.new
   end
 
-  @doc """
-  Convert a raw message into a hash with keys for nick, channel, and text
-  """
-  def parse_msg(msg) do
+  # Convert a raw message into a hash with keys for nick, channel, and text
+  defp parse_msg(msg) do
     pattern = ~r/(?<nick>[^!]+)!.*?PRIVMSG #\S+ :(?<text>.*)/
     Regex.named_captures(pattern, msg)
   end
 
-  def parse_command(%{"nick" => nick, "text" => text}, badges, config) do
+  defp parse_command(%{"nick" => nick, "text" => text}, badges, config) do
     # Set up user in database
     perm_level = perm_level_from_badges(badges)
     {:ok, user} = Users.create_or_get_user(%{name: String.downcase(nick)})
@@ -153,11 +151,9 @@ defmodule MtpoBot.Bot do
     end
   end
 
-  @doc """
-  Given a command, execute the appropriate function.
-  """
-  def dispatch_command(_user, _config, nil), do: nil
-  def dispatch_command(user, config, %{"name" => name, "args" => args}) do
+  # Given a command, execute the appropriate function.
+  defp dispatch_command(_user, _config, nil), do: nil
+  defp dispatch_command(user, config, %{"name" => name, "args" => args}) do
     Logger.info name <> " " <> args
     case {name, String.split(args, " ")} do
       {"guess", [value]}     -> guess(user, value)
@@ -171,14 +167,13 @@ defmodule MtpoBot.Bot do
       {"gg", [""]}           -> gg(user, config)
       {"perm", [other]}      -> whitelist(config, user, other)
       {"unperm", [other]}    -> unwhitelist(config, user, other)
+      {"permitted", [""]}    -> show_whitelist(config, user)
       _                      -> nil
     end
   end
 
-  @doc """
-  Execute the leaderboard command.
-  """
-  def leaderboard(config) do
+  # Execute the leaderboard command.
+  defp leaderboard(config) do
     msg = Users.leaderboard(3)
     |> Stream.with_index
     |> Enum.map(fn ({%{name: name, count: count}, i}) ->
@@ -192,18 +187,14 @@ defmodule MtpoBot.Bot do
     end
   end
 
-  @doc """
-  Execute the hipposite command.
-  """
-  def hipposite(config) do
+  # Execute the hipposite command.
+  defp hipposite(config) do
     url = "https://mtpo.teaearlgraycold.me/"
     Client.msg config.client, :privmsg, config.channel, url
   end
 
-  @doc """
-  Execute the gg command.
-  """
-  def gg(user, config) do
+  # Execute the gg command.
+  defp gg(user, config) do
     if Users.can_state_change(user) do
       Rounds.close_all
       RoomChannel.broadcast_state(Rounds.current_round!)
@@ -211,10 +202,8 @@ defmodule MtpoBot.Bot do
     end
   end
 
-  @doc """
-  Execute the guess command.
-  """
-  def guess(user, value) do
+  # Execute the guess command.
+  defp guess(user, value) do
     with {:ok, time} <- Guess.check_time(value) do
       Guesses.create_guess(%{
         "round_id" => Rounds.current_round!.id,
@@ -224,10 +213,8 @@ defmodule MtpoBot.Bot do
     end
   end
 
-  @doc """
-  Execute state change commands.
-  """
-  def state_change(user, command, args \\ []) do
+  # Execute state change commands.
+  defp state_change(user, command, args \\ []) do
     state = case command do
       "start"  -> :in_progress
       "stop"   -> :completed
@@ -243,38 +230,54 @@ defmodule MtpoBot.Bot do
           with {:ok, correct} <- Enum.at(args, 0) |> Guess.check_time do
             Rounds.update_round(round, %{state: state, correct_value: correct})
           end
+        _ -> nil
       end
     end
   end
 
-  @doc """
-  Add a target user to the round controlling whitelist.
-  """
-  def whitelist(config, user, target) do
+  # Add a target user to the round controlling whitelist.
+  defp whitelist(config, user, target) do
     if user.perm_level == :admin do
-      {:ok, target} = Users.create_or_get_user(%{name: String.downcase(target)})
-      {:ok, _} = Users.update_user(target, %{whitelisted: true})
-      Client.msg config.client, :privmsg, config.channel, "User added."
+      with {:ok, name} <- format_name(target) do
+        {:ok, target} = Users.create_or_get_user(%{name: String.downcase(name)})
+        {:ok, _} = Users.update_user(target, %{whitelisted: true})
+        Client.msg config.client, :privmsg, config.channel, "User added."
+      end
     end
   end
 
-  @doc """
-  Remove a target user from the round controlling whitelist.
-  """
-  def unwhitelist(config, user, target) do
+  # Remove a target user from the round controlling whitelist.
+  defp unwhitelist(config, user, target) do
     if user.perm_level == :admin do
-      {:ok, target} = Users.create_or_get_user(%{name: String.downcase(target)})
-      {:ok, _} = Users.update_user(target, %{whitelisted: false})
-      Client.msg config.client, :privmsg, config.channel, "User removed."
+      with {:ok, name} <- format_name(target) do
+        {:ok, target} = Users.create_or_get_user(%{name: String.downcase(name)})
+        {:ok, _} = Users.update_user(target, %{whitelisted: false})
+        Client.msg config.client, :privmsg, config.channel, "User removed."
+      end
     end
   end
 
-  def perm_level_from_badges(badges) do
+  # Display all whitelisted user in the channel's chat.
+  defp show_whitelist(config, user) do
+    if Users.can_state_change(user) do
+      list = Users.whitelist |> Enum.map(&(&1.name)) |> Enum.join(", ")
+      Client.msg config.client, :privmsg, config.channel, "Permitted: " <> list
+    end
+  end
+
+  defp perm_level_from_badges(badges) do
     case badges do
       %{"moderator" => _}   -> :mod
       %{"broadcaster" => _} -> :admin
       %{"banned" => _}      -> :banned
       _                     -> :user
+    end
+  end
+
+  defp format_name(name) do
+    case Regex.named_captures(~r/^@?(?<name>\S+$)/, name) do
+      %{"name" => name} -> {:ok, name}
+      nil -> :error
     end
   end
 end
