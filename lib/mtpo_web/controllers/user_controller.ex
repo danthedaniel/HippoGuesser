@@ -17,9 +17,15 @@ defmodule MtpoWeb.UserController do
     render(conn, "can_submit.json", %{user: SessionHelper.current_user!(conn)})
   end
 
+  def show_whitelist(conn, _params) do
+    conn
+    |> put_status(:ok)
+    |> render("index.json", %{users: Users.whitelist})
+  end
+
   def whitelist(conn, %{"id" => id}) do
     status = if SessionHelper.is_admin(conn) do
-      Users.update_user(Users.get_user!(id), whitelisted: true)
+      Users.update_user(Users.get_user!(id), %{whitelisted: true})
       :ok
     else
       :forbidden
@@ -29,7 +35,7 @@ defmodule MtpoWeb.UserController do
 
   def unwhitelist(conn, %{"id" => id}) do
     status = if SessionHelper.is_admin(conn) do
-      Users.update_user(Users.get_user!(id), whitelisted: false)
+      Users.update_user(Users.get_user!(id), %{whitelisted: false})
       :ok
     else
       :forbidden

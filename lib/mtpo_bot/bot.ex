@@ -165,8 +165,8 @@ defmodule MtpoBot.Bot do
       {"leaderboard", [""]}  -> leaderboard(config)
       {"leaderboards", [""]} -> leaderboard(config)
       {"gg", [""]}           -> gg(user, config)
-      {"perm", [other]}      -> whitelist(config, user, other)
-      {"unperm", [other]}    -> unwhitelist(config, user, other)
+      {"perm", [target]}     -> whitelist(config, user, target)
+      {"unperm", [target]}   -> unwhitelist(config, user, target)
       {"permitted", [""]}    -> show_whitelist(config, user)
       _                      -> nil
     end
@@ -177,7 +177,7 @@ defmodule MtpoBot.Bot do
     msg = Users.leaderboard(3)
     |> Stream.with_index
     |> Enum.map(fn ({%{name: name, count: count}, i}) ->
-      Integer.to_string(i + 1) <> ". @" <> name <> " - " <> Integer.to_string(count)
+      "\##{i + 1}. @#{name} - #{count} wins"
     end)
     |> Enum.join(", ")
 
@@ -261,7 +261,7 @@ defmodule MtpoBot.Bot do
   defp show_whitelist(config, user) do
     if Users.can_state_change(user) do
       list = Users.whitelist |> Enum.map(&(&1.name)) |> Enum.join(", ")
-      Client.msg config.client, :privmsg, config.channel, "Permitted: " <> list
+      Client.msg config.client, :privmsg, config.channel, "Permitted: #{list}"
     end
   end
 

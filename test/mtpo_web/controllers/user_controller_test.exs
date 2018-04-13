@@ -4,7 +4,7 @@ defmodule MtpoWeb.UserControllerTest do
   alias Mtpo.Users
 
   @admin_attrs %{name: "teaearlgraycold", perm_level: :admin}
-  @mod_attrs %{name: "summoningsalt", perm_level: :mod}
+  @mod_attrs %{name: "summoningsalt", perm_level: :mod, whitelisted: true}
   @user_attrs %{name: "andrewg", perm_level: :user}
 
   def admin do
@@ -54,5 +54,32 @@ defmodule MtpoWeb.UserControllerTest do
     |> get("/api/can_submit")
     |> json_response(200)
     assert body["can_submit"]
+  end
+
+  test "can return a list of whitelisted users", %{conn: conn} do
+    body = conn
+    |> get("/api/users/whitelist")
+    |> json_response(200)
+    assert is_list(body)
+  end
+
+  test "allows for users to be whitelisted", %{conn: conn} do
+    god = admin()
+    pleb = user()
+    body = conn
+    |> Plug.Conn.assign(:current_user, god.id)
+    |> patch("/api/users/#{pleb.id}/whitelist")
+    |> json_response(200)
+    assert Map.get(body, "whitelisted")
+  end
+
+  test "allows for users to be un-whitelisted", %{conn: conn} do
+    god = admin()
+    pleb = mod()
+    body = conn
+    |> Plug.Conn.assign(:current_user, god.id)
+    |> delete("/api/users/#{pleb.id}/whitelist")
+    |> json_response(200)
+    assert !Map.get(body, "whitelisted")
   end
 end
