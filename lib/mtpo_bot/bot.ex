@@ -25,6 +25,7 @@ defmodule MtpoBot.Bot do
   alias ExIrc.Client
   alias IrcMessage
   alias Mtpo.{Users, Guesses, Rounds}
+  alias Mtpo.Users.User
   alias Mtpo.Guesses.Guess
   alias MtpoWeb.RoomChannel
 
@@ -156,7 +157,7 @@ defmodule MtpoBot.Bot do
   defp dispatch_command(user, config, %{"name" => name, "args" => args}) do
     Logger.info name <> " " <> args
     case {name, String.split(args, " ")} do
-      {"guess", [value]}     -> guess(user, value)
+      {"guess", [value]}     -> guess(user, Guess.check_time(value))
       {"start", [""]}        -> state_change(user, "start")
       {"stop", [""]}         -> state_change(user, "stop")
       {"winner", [correct]}  -> state_change(user, "winner", [correct])
@@ -165,8 +166,8 @@ defmodule MtpoBot.Bot do
       {"leaderboard", [""]}  -> leaderboard(config)
       {"leaderboards", [""]} -> leaderboard(config)
       {"gg", [""]}           -> gg(user, config)
-      {"perm", [target]}     -> whitelist(config, user, target)
-      {"unperm", [target]}   -> unwhitelist(config, user, target)
+      {"perm", [target]}     -> whitelist(config, user, format_name(target))
+      {"unperm", [target]}   -> unwhitelist(config, user, format_name(target))
       {"permitted", [""]}    -> show_whitelist(config, user)
       _                      -> nil
     end
@@ -203,14 +204,12 @@ defmodule MtpoBot.Bot do
   end
 
   # Execute the guess command.
-  defp guess(user, value) do
-    with {:ok, time} <- Guess.check_time(value) do
-      Guesses.create_guess(%{
-        "round_id" => Rounds.current_round!.id,
-        "user_id"  => user.id,
-        "value"    => time
-      })
-    end
+  defp guess(user, {:ok, time}) do
+    Guesses.create_guess(%{
+      "round_id" => Rounds.current_round!.id,
+      "user_id"  => user.id,
+      "value"    => time
+    })
   end
 
   # Execute state change commands.
@@ -236,25 +235,17 @@ defmodule MtpoBot.Bot do
   end
 
   # Add a target user to the round controlling whitelist.
-  defp whitelist(config, user, target) do
-    if user.perm_level == :admin do
-      with {:ok, name} <- format_name(target) do
-        {:ok, target} = Users.create_or_get_user(%{name: String.downcase(name)})
-        {:ok, _} = Users.update_user(target, %{whitelisted: true})
-        Client.msg config.client, :privmsg, config.channel, "User added."
-      end
-    end
+  defp whitelist(config, %User{perm_level: :admin}, {:ok, name}) do
+    {:ok, target} = Users.create_or_get_user(%{name: String.downcase(name)})
+    {:ok, _} = Users.update_user(target, %{whitelisted: true})
+    Client.msg config.client, :privmsg, config.channel, "User added."
   end
 
   # Remove a target user from the round controlling whitelist.
-  defp unwhitelist(config, user, target) do
-    if user.perm_level == :admin do
-      with {:ok, name} <- format_name(target) do
-        {:ok, target} = Users.create_or_get_user(%{name: String.downcase(name)})
-        {:ok, _} = Users.update_user(target, %{whitelisted: false})
-        Client.msg config.client, :privmsg, config.channel, "User removed."
-      end
-    end
+  defp unwhitelist(config, %User{perm_level: :admin}, {:ok, name}) do
+    {:ok, target} = Users.create_or_get_user(%{name: String.downcase(name)})
+    {:ok, _} = Users.update_user(target, %{whitelisted: false})
+    Client.msg config.client, :privmsg, config.channel, "User removed."
   end
 
   # Display all whitelisted user in the channel's chat.

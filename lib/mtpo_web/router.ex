@@ -25,10 +25,10 @@ defmodule MtpoWeb.Router do
     patch "/users/:id/whitelist", UserController, :whitelist
     delete "/users/:id/whitelist", UserController, :unwhitelist
 
-    get "/rounds/:id", RoundController, :show
     get "/rounds/current", RoundController, :current
     post "/rounds/current/guess", RoundController, :guess
     patch "/rounds/current/change/:state", RoundController, :change_state
+    get "/rounds/:id", RoundController, :show
   end
 
   scope "/", MtpoWeb do
