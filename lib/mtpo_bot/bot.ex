@@ -147,7 +147,7 @@ defmodule MtpoBot.Bot do
 
     # First try to parse a raw timestamp guess
     case Guess.check_time(text) do
-      {:ok, _} -> guess(user, text)
+      {:ok, time} -> guess(user, time)
       :error   -> dispatch_command(user, config, command)
     end
   end
@@ -204,7 +204,8 @@ defmodule MtpoBot.Bot do
   end
 
   # Execute the guess command.
-  defp guess(user, {:ok, time}) do
+  defp guess(user, {:ok, time}), do: guess(user, time)
+  defp guess(user, time) when is_bitstring(time) do
     Guesses.create_guess(%{
       "round_id" => Rounds.current_round!.id,
       "user_id"  => user.id,
