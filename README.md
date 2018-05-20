@@ -36,3 +36,4 @@ to defeat King Hippo in a speedrun.
 ### Broadcaster Only
 * `!perm username` - Give a user permission to control rounds.
 * `!unperm username` - Remove permission to control rounds.
+* `!permitted` - Display the whitelist of users.
